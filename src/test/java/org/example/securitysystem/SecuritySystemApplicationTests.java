@@ -1,13 +1,48 @@
 package org.example.securitysystem;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
+import security_system.AlarmSystem;
+import security_system.SecurityController;
+import security_system.sensors.MotionSensor;
+
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 class SecuritySystemApplicationTests {
 
-    @Test
-    void contextLoads() {
+    @Mock
+    private AlarmSystem alarmSystem;
+
+    @InjectMocks
+    private SecurityController securityController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        securityController = new SecurityController();
     }
 
+    @Test
+    void contextLoads() {
+
+    }
+
+    @Test
+    void testMotionDetectionTriggersAlarm() {
+        MotionSensor motionSensor = new MotionSensor();
+        motionSensor.setMediator(securityController);
+
+        securityController.register(motionSensor, "MotionSensor");
+        securityController.register(alarmSystem, "AlarmSystem");
+
+        motionSensor.detect();
+
+        verify(alarmSystem, times(1)).activateAlarm();
+    }
 }
