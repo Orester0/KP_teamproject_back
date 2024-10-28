@@ -1,9 +1,12 @@
-package security_system;
+package org.example.securitysystem.model.model_controller.mediator;
+
+import org.example.securitysystem.model.entity.security_system.SecurityColleague;
+import org.example.securitysystem.model.entity.security_system.alarms.AlarmSystem;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class SecurityController implements SecuritySystemMediator{
+public class SecurityController implements SecuritySystemMediator {
     private final Map<String, SecurityColleague> colleagues = new HashMap<>();
 
     @Override

@@ -1,7 +1,7 @@
-package security_system.sensors;
+package org.example.securitysystem.model.entity.security_system.sensors;
 
-import security_system.SecurityColleague;
-import security_system.SecuritySystemMediator;
+import org.example.securitysystem.model.entity.security_system.SecurityColleague;
+import org.example.securitysystem.model.model_controller.mediator.SecuritySystemMediator;
 
 public abstract class Sensor implements SecurityColleague {
     protected SecuritySystemMediator securityMediator;
