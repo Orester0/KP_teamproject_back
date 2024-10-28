@@ -1,5 +1,5 @@
 package org.example.securitysystem.controller;
 
-public class SecurityController {
+public class WebApiController {
 
 }
