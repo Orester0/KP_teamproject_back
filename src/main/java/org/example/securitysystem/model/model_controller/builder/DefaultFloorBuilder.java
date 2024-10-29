@@ -30,7 +30,7 @@ class DefaultFloorBuilder implements FloorBuilder {
 
     @Override
     public void buildOffice() {
-        floor.addRoom(new Office(0.0, 0));  // Не потрібно
+        floor.addRoom(new Office(0.0, 0));
     }
 
     @Override

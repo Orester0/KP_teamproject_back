@@ -24,7 +24,7 @@ class OfficeFloorBuilder implements FloorBuilder {
 
     @Override
     public void buildLivingRoom() {
-        floor.addRoom(new LivingRoom(0.0, 0));  // Не потрібно для офісу
+        floor.addRoom(new LivingRoom(0.0, 0));
     }
 
     @Override
