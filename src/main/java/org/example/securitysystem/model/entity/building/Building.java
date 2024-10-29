@@ -5,7 +5,7 @@ import org.example.securitysystem.model.model_controller.builder.*;
 import java.util.ArrayList;
 import java.util.List;
 
-class Building {
+public class Building {
     private List<Floor> floors = new ArrayList<>();
     private FloorBuilder floorBuilder;
     private double floorArea;
