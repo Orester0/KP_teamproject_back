@@ -3,7 +3,7 @@ package org.example.securitysystem.model.model_controller.builder;
 import org.example.securitysystem.model.entity.building.Floor;
 import org.example.securitysystem.model.entity.room.*;
 
-class OfficeFloorBuilder implements FloorBuilder {
+public class OfficeFloorBuilder implements FloorBuilder {
     private double floorArea;
     private Floor floor;
 
