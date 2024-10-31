@@ -13,6 +13,8 @@ public class SecurityController implements SecuritySystemMediator {
     public void notify(SecurityColleague sender, String event) {
         if (event.equals("Motion Detected")) {
             ((AlarmSystem)colleagues.get("AlarmSystem")).activateAlarm();
+        } else {
+            System.out.println("aaa");
         }
     }
 
