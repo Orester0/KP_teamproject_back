@@ -7,9 +7,13 @@ import org.springframework.jdbc.core.SqlReturnType;
 import java.util.List;
 
 public class SecurityEventManager {
-    private List<Sensor> listener;
+    private List<Sensor> listeners;
 
-    public void subscribe(SecurityEventListener listener) { }
+    public void subscribe(SecurityEventListener listener) {
+
+    }
     public void unsubscribe(SecurityEventListener listener) { }
-    public void securityNotify (String eventType, SqlReturnType sensorsDetails) { }
+    public void securityNotify (String eventType, SqlReturnType sensorsDetails) {
+
+    }
 }

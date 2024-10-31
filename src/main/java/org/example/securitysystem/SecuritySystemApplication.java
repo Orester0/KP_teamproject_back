@@ -11,5 +11,4 @@ public class SecuritySystemApplication {
         System.out.println("Start of work");
         System.out.println("End of work");
     }
-
 }
