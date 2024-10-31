@@ -2,8 +2,6 @@
 
 # Security System Simulation
 
-![Пацєтко](https://static26.tgcnt.ru/posts/_0/03/03c49d854573fcb43320964f39b7e047.jpg)
-
 This repository contains a Java project for simulating a security system within a building environment. 
 The system models different sensors, rooms, and alerts to handle various security events. 
 The architecture uses the mediator and observer design patterns to efficiently manage communication between components.
@@ -51,7 +49,7 @@ The architecture diagram (attached in this repository) provides a visual overvie
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/yourusername/security-system.git
+    git clone https://github.com/Orester0/security-system.git
     cd security-system
     ```
 
@@ -72,12 +70,5 @@ The architecture diagram (attached in this repository) provides a visual overvie
 - **Frontend**: The frontend interface connects with the `Controller` class to visualize sensor activations and floor layouts.
 - **Robber Simulation**: The `RobberSimulator` class randomly activates sensors to test the system's response.
 
-## Contributing
 
-Contributions are welcome! Please fork this repository, make your changes, and submit a pull request. For major changes, open an issue first to discuss your ideas.
-
-## License
-
-This project is licensed under the LPNU Kovalevych Taras Seraphimovych. 
-![Пацєтко](https://pbs.twimg.com/media/F9MYqjoW0AAC3QW.jpg)
-![Пацєтко](https://media.tenor.com/PExCF2qViXAAAAAe/%D0%BF%D0%B0%D1%86%D1%94%D1%82%D0%BA%D0%BE-%D0%BF%D0%B0%D1%86%D1%94%D1%82%D0%BA%D0%BE-%D0%B2%D1%80%D0%BE%D0%B4%D0%B8%D0%BB%D0%BE.png)
+![Пацєтко](https://static26.tgcnt.ru/posts/_0/03/03c49d854573fcb43320964f39b7e047.jpg)
