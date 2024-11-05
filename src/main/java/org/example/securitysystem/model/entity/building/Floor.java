@@ -23,7 +23,6 @@ public class Floor {
         for(Room room : rooms){
             sensors.addAll(room.getSensors());
         }
-
         return sensors;
     }
 }
