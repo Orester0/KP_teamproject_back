@@ -1,7 +1,7 @@
 package org.example.securitysystem.model.entity.room;
 
 import lombok.Getter;
-import org.example.securitysystem.model.entity.security_system.sensors.Sensor;
+import org.example.securitysystem.model.entity.security_system.sensors.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,3 +26,4 @@ public abstract class Room {
     public abstract void calculateSensor();
 
 }
+

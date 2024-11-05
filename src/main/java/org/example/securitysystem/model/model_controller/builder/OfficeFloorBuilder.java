@@ -1,49 +1,78 @@
 package org.example.securitysystem.model.model_controller.builder;
 
+import lombok.Getter;
+import org.example.securitysystem.config.OfficeFloorConfig;
 import org.example.securitysystem.model.entity.building.Floor;
 import org.example.securitysystem.model.entity.room.*;
 
-public class OfficeFloorBuilder implements FloorBuilder {
-    private double floorArea;
-    private Floor floor;
-
+@Getter
+public class OfficeFloorBuilder  extends AbstractFloorBuilder {
     public OfficeFloorBuilder(double floorArea) {
-        this.floorArea = floorArea;
-        this.floor = new Floor();
+        super(floorArea);
     }
 
     @Override
-    public void buildWC() {
-        floor.addRoom(new WC(4.0, 1));
+    public IFloorBuilder buildWC() {
+        if (shouldBuildRoom(OfficeFloorConfig.WC_RATIO)) {
+            double area = calculateRoomArea(OfficeFloorConfig.WC_RATIO);
+            addRoom(new WC(area, 1), area);
+        }
+        return this;
     }
 
     @Override
-    public void buildDiningRoom() {
-        floor.addRoom(new DiningRoom(10.0, 2));
+    public IFloorBuilder buildDiningRoom() {
+        if (shouldBuildRoom(OfficeFloorConfig.DINING_RATIO)) {
+            double area = calculateRoomArea(OfficeFloorConfig.DINING_RATIO);
+            addRoom(new DiningRoom(area,
+                            calculateWindowsAndDoors(area, 1, OfficeFloorConfig.AREA_PER_WINDOW)),
+                    area);
+        }
+        return this;
     }
 
     @Override
-    public void buildLivingRoom() {
-        floor.addRoom(new LivingRoom(0.0, 0));
+    public IFloorBuilder buildLivingRoom() {
+        // Note: Office buildings typically don't have living rooms (LIVING_RATIO = 0)
+        if (shouldBuildRoom(OfficeFloorConfig.LIVING_RATIO)) {
+            double area = calculateRoomArea(OfficeFloorConfig.LIVING_RATIO);
+            addRoom(new LivingRoom(area,
+                            calculateWindowsAndDoors(area, 2, OfficeFloorConfig.AREA_PER_WINDOW)),
+                    area);
+        }
+        return this;
     }
 
     @Override
-    public void buildOffice() {
-        floor.addRoom(new Office(30.0, 6));
+    public IFloorBuilder buildOffice() {
+        if (shouldBuildRoom(OfficeFloorConfig.OFFICE_RATIO)) {
+            double area = calculateRoomArea(OfficeFloorConfig.OFFICE_RATIO);
+            addRoom(new Office(area,
+                            calculateWindowsAndDoors(area, 1, OfficeFloorConfig.AREA_PER_WINDOW)),
+                    area);
+        }
+        return this;
     }
 
     @Override
-    public void buildHall() {
-        floor.addRoom(new Hall(8.0, 2));
+    public IFloorBuilder buildHall() {
+        if (shouldBuildRoom(OfficeFloorConfig.HALL_RATIO)) {
+            double area = calculateRoomArea(OfficeFloorConfig.HALL_RATIO);
+            addRoom(new Hall(area,
+                            calculateWindowsAndDoors(area, 2, OfficeFloorConfig.AREA_PER_WINDOW)),
+                    area);
+        }
+        return this;
     }
 
     @Override
-    public void buildKitchen() {
-        floor.addRoom(new Kitchen(5.0, 1));
-    }
-
-    @Override
-    public Floor getFloor() {
-        return floor;
+    public IFloorBuilder buildKitchen() {
+        if (shouldBuildRoom(OfficeFloorConfig.KITCHEN_RATIO)) {
+            double area = calculateRoomArea(OfficeFloorConfig.KITCHEN_RATIO);
+            addRoom(new Kitchen(area,
+                            calculateWindowsAndDoors(area, 1, OfficeFloorConfig.AREA_PER_WINDOW)),
+                    area);
+        }
+        return this;
     }
 }

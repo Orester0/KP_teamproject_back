@@ -12,4 +12,5 @@ public abstract class Sensor implements SecurityColleague {
     }
 
     public abstract  void detect();
+
 }
