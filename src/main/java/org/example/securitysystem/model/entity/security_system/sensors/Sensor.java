@@ -11,6 +11,5 @@ public abstract class Sensor implements SecurityColleague {
         securityMediator = mediator;
     }
 
-    public abstract  void detect();
-
+    public abstract  void detect() throws Exception;
 }
