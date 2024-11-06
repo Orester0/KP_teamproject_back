@@ -18,61 +18,54 @@ public class SecuritySystemApplication {
     public static void main(String[] args) throws Exception {
         SpringApplication.run(SecuritySystemApplication.class, args);
 
-//        Building building = new Building(3, 100);
-//        try
-//        {
-//            building.buildDefaultFloor();
-//            building.buildHostelFloor();
-//            building.buildOfficeFloor();
-//            building.setSensors();
-//        }
-//        catch (Exception e)
-//        {
-//            throw new RuntimeException(e);
-//        }
-//        List<Floor> floors = building.getFloors();
-//        Floor firstFloor = floors.get(0);
-//        List<Sensor> firstFloorSensors = firstFloor.getSensors();
-//        for(Sensor sensor : firstFloorSensors)
-//        {
-//            System.out.println(sensor);
-//        }
-//        System.out.println(firstFloorSensors.size());
-//        System.out.println("End of work");
+        Building building = new Building(3, 100);
+        try
+        {
+            building.buildDefaultFloor();
+            building.buildHostelFloor();
+            building.buildOfficeFloor();
+            building.setSensors();
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+        List<Floor> floors = building.getFloors();
+        Floor firstFloor = floors.get(0);
+        List<Sensor> firstFloorSensors = firstFloor.getSensors();
+        for(Sensor sensor : firstFloorSensors)
+        {
+            System.out.println(sensor);
+        }
+
+        SecurityController securityController = new SecurityController();
+
+        for (Sensor sensor : firstFloorSensors) {
+            sensor.setMediator(securityController);
+
+            String sensorType;
+            if (sensor instanceof MotionSensor) {
+                sensorType = "MotionSensor";
+            } else if (sensor instanceof Camera) {
+                sensorType = "CameraSensor";
+            } else if (sensor instanceof Microphone) {
+                sensorType = "MicrophoneSensor";
+            } else if (sensor instanceof TemperatureSensor) {
+                sensorType = "TemperatureSensor";
+            } else {
+                continue; // Пропустити, якщо тип сенсора не визначений
+            }
+
+            securityController.register(sensor, sensorType);
+        }
 
         AlarmSystem siren = new SirenLight();
         AlarmSystem speakers = new SpeakersAlarm();
-
-        SecurityController securityController = new SecurityController();
-        Sensor motionSensor = new MotionSensor(); //Motion Detected
-        Sensor cameraSensor = new Camera(); //Strange Object
-        Sensor microphoneSensor = new Microphone(); //Strange Sounds
-        Sensor temperatureSensor = new TemperatureSensor(); //High Temperature
-
-        motionSensor.setMediator(securityController);
-        cameraSensor.setMediator(securityController);
-        microphoneSensor.setMediator(securityController);
-        temperatureSensor.setMediator(securityController);
-
-        securityController.register(motionSensor, "MotionSensor");
-        securityController.register(cameraSensor, "CameraSensor");
-        securityController.register(microphoneSensor, "MicrophoneSensor");
-        securityController.register(temperatureSensor, "TemperatureSensor");
-
         securityController.register(siren, "Siren");
         securityController.register(speakers, "Speakers");
 
-        motionSensor.detect();
-        System.out.println("----------------------------------");
+        firstFloorSensors.get(1).detect();
 
-        cameraSensor.detect();
-        System.out.println("----------------------------------");
-
-        microphoneSensor.detect();
-        System.out.println("----------------------------------");
-
-        temperatureSensor.detect();
-        System.out.println("----------------------------------");
 
     }
 }
