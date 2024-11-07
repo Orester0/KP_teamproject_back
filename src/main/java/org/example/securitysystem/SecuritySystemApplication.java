@@ -2,6 +2,8 @@ package org.example.securitysystem;
 
 import org.example.securitysystem.model.entity.building.Building;
 import org.example.securitysystem.model.entity.building.Floor;
+import org.example.securitysystem.model.entity.room.Office;
+import org.example.securitysystem.model.entity.room.Room;
 import org.example.securitysystem.model.entity.security_system.sensors.Sensor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,8 +18,8 @@ public class SecuritySystemApplication {
         Building building = new Building(3, 100);
         try
         {
-            building.buildDefaultFloor();
-            building.buildHostelFloor();
+            building.buildOfficeFloor();
+            building.buildOfficeFloor();
             building.buildOfficeFloor();
             building.setSensors();
         }
@@ -26,13 +28,15 @@ public class SecuritySystemApplication {
             throw new RuntimeException(e);
         }
         List<Floor> floors = building.getFloors();
-        Floor firstFloor = floors.get(0);
-        List<Sensor> firstFloorSensors = firstFloor.getSensors();
-        for(Sensor sensor : firstFloorSensors)
-        {
-            System.out.println(sensor);
+        for(Floor floor : floors){
+            List<Room> rooms = floor.getRooms();
+            for(Room room : rooms)
+            {
+                for(Sensor sensor : room.getSensors()){
+                    System.out.println(sensor.getHashID());
+                }
+            }
         }
-        System.out.println(firstFloorSensors.size());
         System.out.println("End of work");
     }
 }
