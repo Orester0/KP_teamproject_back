@@ -1,11 +1,17 @@
 package org.example.securitysystem.model.entity.building;
 
 import lombok.Getter;
-import org.example.securitysystem.model.entity.room.Room;
+import org.example.securitysystem.model.entity.room.*;
+import org.example.securitysystem.model.entity.security_system.sensors.*;
 import org.example.securitysystem.model.model_controller.builder.*;
+import org.springframework.boot.web.embedded.tomcat.TomcatEmbeddedWebappClassLoader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 @Getter
 public class Building {
@@ -20,18 +26,45 @@ public class Building {
     }
 
     public void setSensors() throws Exception {
-        if(floors.size() != heightInFloors) {
-            throw new Exception("Not yet");
+        if (floors.size() != heightInFloors) {
+            throw new Exception("Number of floors does not match the expected height");
         }
-        for(Floor floor : floors){
-            for(Room room : floor.getRooms()){
+
+        int floorNumber = 1;
+        int roomNumber = 1;
+        for (Floor floor : floors) {
+            for (Room room : floor.getRooms()) {
                 room.calculateSensor();
+
+                StringBuilder floorAndRoomBuilder = new StringBuilder();
+                floorAndRoomBuilder.append(String.format("%02d", floorNumber));
+
+                String name1 = room.getClass().getSimpleName();
+                floorAndRoomBuilder.append("_").append(name1).append("_");
+
+
+                floorAndRoomBuilder.append(String.format("%03d", roomNumber));
+
+                int sensorCount = 0;
+                for (Sensor sensor : room.getSensors()) {
+                    StringBuilder sensorIdBuilder = new StringBuilder(floorAndRoomBuilder);
+
+                    String name2 = sensor.getClass().getSimpleName();
+                    sensorIdBuilder.append("_").append(name2).append("_");
+
+                    sensorIdBuilder.append(String.format("%03d", ++sensorCount));
+                    sensor.setHashID(sensorIdBuilder.toString());
+                    sensorIdBuilder.setLength(floorAndRoomBuilder.length() - 3);
+                }
+                roomNumber++;
             }
+            floorNumber++;
+            roomNumber = 1;
         }
     }
 
     public void buildOfficeFloor() throws Exception {
-        if(floors.size() == heightInFloors) {
+        if (floors.size() == heightInFloors) {
             throw new Exception("Already has all floors");
         }
         this.IFloorBuilder = new OfficeFloorBuilder(this.floorArea);
@@ -46,7 +79,7 @@ public class Building {
     }
 
     public void buildHostelFloor() throws Exception {
-        if(floors.size() == heightInFloors) {
+        if (floors.size() == heightInFloors) {
             throw new Exception("Already has all floors");
         }
         this.IFloorBuilder = new HostelFloorBuilder(this.floorArea);
@@ -61,7 +94,7 @@ public class Building {
     }
 
     public void buildDefaultFloor() throws Exception {
-        if(floors.size() == heightInFloors) {
+        if (floors.size() == heightInFloors) {
             throw new Exception("Already has all floors");
         }
         this.IFloorBuilder = new DefaultFloorBuilder(this.floorArea);
