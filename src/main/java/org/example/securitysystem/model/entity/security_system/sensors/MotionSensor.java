@@ -6,5 +6,6 @@ public class MotionSensor extends Sensor {
     public void detect() throws Exception {
         System.out.println("Motion Detected!!");
         securityMediator.notify(this, "Motion Detected");
+        securityEventManager.securityNotify("Motion Detected", this);
     }
 }

@@ -6,5 +6,7 @@ public class Camera extends Sensor {
     public void detect() throws Exception {
         System.out.println("Strange Object Detected");
         securityMediator.notify(this, "Strange Object");
+        securityEventManager.securityNotify("Strange Object", this);
+
     }
 }
