@@ -9,7 +9,6 @@ public abstract class AlarmSystem implements SecurityColleague {
     @Override
     public void setMediator(SecuritySystemMediator mediator) {
         securityMediator = mediator;
-        System.out.println("added");
     }
 
     public abstract void activateAlarm();
