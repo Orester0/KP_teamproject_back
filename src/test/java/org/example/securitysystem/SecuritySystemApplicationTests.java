@@ -31,7 +31,7 @@ class SecuritySystemApplicationTests {
     }
 
     @Test
-    void testMotionDetectionTriggersAlarm() {
+    void testMotionDetectionTriggersAlarm() throws Exception {
         MotionSensor motionSensor = new MotionSensor();
         motionSensor.setMediator(securityController);
 
