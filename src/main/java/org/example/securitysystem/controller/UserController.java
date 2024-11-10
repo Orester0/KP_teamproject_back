@@ -1,19 +1,19 @@
 package org.example.securitysystem.controller;
 
-import io.swagger.annotations.Api;
+import org.example.securitysystem.model.dto.UserRequest;
 import org.example.securitysystem.model.entity.building.Building;
 import org.example.securitysystem.model.entity.User;
 import org.example.securitysystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-@RestController
-@Api(tags = "User API")
-@RequestMapping("/user")
+@Controller
 public class UserController {
 
     private final UserService userService;
@@ -23,24 +23,40 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public String register(@RequestParam String username) {
-        return userService.registerUser(username);
+    @MessageMapping("/user/register")
+    @SendTo("/topic/user")
+    public String register(UserRequest request) {
+        try {
+            return userService.registerUser(request.getUsername());
+        } catch (Exception e) {
+            return handleError(e);
+        }
     }
 
-    @PostMapping("/login")
-    public String login(@RequestParam String username) {
-        return userService.loginUser(username);
+    @MessageMapping("/user/login")
+    @SendTo("/topic/user")
+    public String login(UserRequest request) {
+        try {
+            return userService.loginUser(request.getUsername());
+        } catch (Exception e) {
+            return handleError(e);
+        }
     }
 
-    @GetMapping("/accounts")
-    public Map<String, User> getAllAccounts() {
-        return userService.getAllUsers();
+    @MessageMapping("/user/accounts")
+    @SendTo("/topic/accounts")
+    public List<User> getAllAccounts() {
+        try {
+            return userService.getAllUsers();
+        } catch (Exception e) {
+            // Тут ви можете визначити, який тип помилки повертати для цього методу
+            throw new RuntimeException("Error retrieving user accounts: " + e.getMessage());
+        }
     }
 
-    @GetMapping("/building/{username}")
-    public Building getBuilding(@PathVariable String username) {
-        return userService.getUserBuilding(username);
+    // Метод для обробки помилок
+    private String handleError(Exception e) {
+        // Можна додати більш детальну обробку залежно від типу винятку
+        return "Error occurred: " + e.getMessage();
     }
 }
