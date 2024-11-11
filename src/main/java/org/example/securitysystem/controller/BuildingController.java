@@ -4,12 +4,12 @@ import org.example.securitysystem.model.entity.User;
 import org.example.securitysystem.model.entity.building.Building;
 import org.example.securitysystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 
-@Controller
+@RestController
+@RequestMapping("/api/building")
 public class BuildingController {
 
     private final UserService userService;
@@ -19,77 +19,118 @@ public class BuildingController {
         this.userService = userService;
     }
 
-    @MessageMapping("/building/create")
-    @SendTo("/topic/building")
-    public String createBuilding(BuildingRequest request) {
+    @PostMapping("/create")
+    public ResponseEntity<String> createBuilding(@RequestBody BuildingRequest request) {
         try {
             var user = userService.getUser(request.getUserId());
             if (user == null) {
-                throw new IllegalArgumentException("User not found.");
+                return ResponseEntity.badRequest().body("User not found.");
             }
             if (user.getBuilding() != null) {
-                throw new IllegalStateException("User already has a building associated.");
+                return ResponseEntity.badRequest().body("User already has a building associated.");
             }
 
             Building building = new Building(request.getHeightInFloors(), request.getFloorArea());
             user.setBuilding(building);
             userService.updateUser(user);
-            return "Building created successfully with " + request.getHeightInFloors() + " floors and floor area of " + request.getFloorArea() + " sqm.";
+            return ResponseEntity.ok("Building created successfully with " + request.getHeightInFloors() +
+                    " floors and floor area of " + request.getFloorArea() + " sqm.");
         } catch (Exception e) {
-            return handleError(e);
+            return ResponseEntity.internalServerError().body(handleError(e));
         }
     }
 
-    @MessageMapping("/building/addDefaultFloor")
-    @SendTo("/topic/building")
-    public String addDefaultFloor(BuildingRequest request) {
+    @PostMapping("/addDefaultFloor")
+    public ResponseEntity<String> addDefaultFloor(@RequestBody BuildingRequest request) {
         try {
             var user = userService.getUser(request.getUserId());
             Building building = getUserBuilding(user);
+            if (building.isFinalized()) {
+                return ResponseEntity.badRequest().body("Cannot modify finalized building.");
+            }
             building.buildDefaultFloor();
             userService.updateUser(user);
-            return "Default floor added successfully.";
+            return ResponseEntity.ok("Default floor added successfully.");
         } catch (Exception e) {
-            return handleError(e);
+            return ResponseEntity.internalServerError().body(handleError(e));
         }
     }
 
-    @MessageMapping("/building/addOfficeFloor")
-    @SendTo("/topic/building")
-    public String addOfficeFloor(BuildingRequest request){
+    @PostMapping("/addOfficeFloor")
+    public ResponseEntity<String> addOfficeFloor(@RequestBody BuildingRequest request) {
         try {
             var user = userService.getUser(request.getUserId());
             Building building = getUserBuilding(user);
+            if (building.isFinalized()) {
+                return ResponseEntity.badRequest().body("Cannot modify finalized building.");
+            }
             building.buildOfficeFloor();
             userService.updateUser(user);
-            return "Office floor added successfully.";
+            return ResponseEntity.ok("Office floor added successfully.");
         } catch (Exception e) {
-            return handleError(e);
+            return ResponseEntity.internalServerError().body(handleError(e));
         }
     }
 
-    @MessageMapping("/building/addHostelFloor")
-    @SendTo("/topic/building")
-    public String addHostelFloor(BuildingRequest request){
+    @PostMapping("/addHostelFloor")
+    public ResponseEntity<String> addHostelFloor(@RequestBody BuildingRequest request) {
         try {
             var user = userService.getUser(request.getUserId());
             Building building = getUserBuilding(user);
+            if (building.isFinalized()) {
+                return ResponseEntity.badRequest().body("Cannot modify finalized building.");
+            }
             building.buildHostelFloor();
             userService.updateUser(user);
-            return "Hostel floor added successfully.";
+            return ResponseEntity.ok("Hostel floor added successfully.");
         } catch (Exception e) {
-            return handleError(e);
+            return ResponseEntity.internalServerError().body(handleError(e));
         }
     }
 
-    @MessageMapping("/building/config")
-    @SendTo("/topic/buildingConfig")
-    public Building getBuildingConfig(BuildingRequest request) {
+    @PostMapping("/finalize")
+    public ResponseEntity<String> finalizeBuilding(@RequestParam Long userId) {
         try {
-            var user = userService.getUser(request.getUserId());
-            return getUserBuilding(user);
+            var user = userService.getUser(userId);
+            Building building = getUserBuilding(user);
+            if (building.isFinalized()) {
+                return ResponseEntity.badRequest().body("Building is already finalized.");
+            }
+            building.finalizeBuilding();
+            userService.updateUser(user);
+            return ResponseEntity.ok("Building finalized successfully.");
         } catch (Exception e) {
-            throw new RuntimeException("Building configuration could not be retrieved: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(handleError(e));
+        }
+    }
+
+    @GetMapping("/config")
+    public ResponseEntity<Building> getBuildingConfig(@RequestParam Long userId) {
+        try {
+            var user = userService.getUser(userId);
+            Building building = getUserBuilding(user);
+            if (!building.isFinalized()) {
+                return ResponseEntity.badRequest().body(null);
+            }
+            return ResponseEntity.ok(building);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @DeleteMapping("/removeFloor")
+    public ResponseEntity<String> removeFloor(@RequestParam Long userId, @RequestParam int floorId) {
+        try {
+            var user = userService.getUser(userId);
+            Building building = getUserBuilding(user);
+            if (building.isFinalized()) {
+                return ResponseEntity.badRequest().body("Cannot modify finalized building.");
+            }
+            building.removeFloor(floorId);
+            userService.updateUser(user);
+            return ResponseEntity.ok("Floor removed successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(handleError(e));
         }
     }
 

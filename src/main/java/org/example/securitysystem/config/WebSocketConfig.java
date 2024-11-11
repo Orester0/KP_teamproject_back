@@ -12,7 +12,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // Дозволяємо підключення з будь-якого джерела
         registry.addEndpoint("/ws").setAllowedOrigins("http://127.0.0.1:5500").withSockJS();
     }
 

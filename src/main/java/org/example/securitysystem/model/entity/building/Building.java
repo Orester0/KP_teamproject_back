@@ -1,24 +1,27 @@
 package org.example.securitysystem.model.entity.building;
 
+import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import org.example.securitysystem.model.entity.room.*;
 import org.example.securitysystem.model.entity.security_system.sensors.*;
 import org.example.securitysystem.model.model_controller.builder.*;
-import org.springframework.boot.web.embedded.tomcat.TomcatEmbeddedWebappClassLoader;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
 
 @Getter
-public class Building {
+public class Building implements Serializable {
+    @Expose
     private List<Floor> floors = new ArrayList<>();
-    private IFloorBuilder IFloorBuilder;
+    @Expose
     private double floorArea;
+    @Expose
     private int heightInFloors;
+    @Expose
+    private boolean isFinalized = false;
+
+    private IFloorBuilder IFloorBuilder;
 
     public Building(int heightInFloors, double floorArea) {
         this.floorArea = floorArea;
@@ -26,6 +29,7 @@ public class Building {
     }
 
     public void setSensors() throws Exception {
+        validateNotFinalized();
         if (floors.size() != heightInFloors) {
             throw new Exception("Number of floors does not match the expected height");
         }
@@ -41,7 +45,6 @@ public class Building {
 
                 String name1 = room.getClass().getSimpleName();
                 floorAndRoomBuilder.append("_").append(name1).append("_");
-
 
                 floorAndRoomBuilder.append(String.format("%03d", roomNumber));
 
@@ -63,50 +66,85 @@ public class Building {
         }
     }
 
+    public void removeFloor(int id) throws Exception {
+        validateNotFinalized();
+        if (id < 0 || id >= floors.size()) {
+            throw new Exception("Invalid ID");
+        }
+        try {
+            floors.remove(id);
+        } catch (Exception e) {
+            throw new Exception("Can't remove floor");
+        }
+    }
+
     public void buildOfficeFloor() throws Exception {
+        validateNotFinalized();
         if (floors.size() == heightInFloors) {
             throw new Exception("Already has all floors");
         }
         this.IFloorBuilder = new OfficeFloorBuilder(this.floorArea);
-        Floor officeFloor = this.IFloorBuilder
+        this.IFloorBuilder
                 .buildOffice()
-                .buildHall()
                 .buildDiningRoom()
                 .buildKitchen()
                 .buildWC()
-                .getFloor();
+                .buildHall();
+
+        Floor officeFloor = this.IFloorBuilder.finalizeFloor();
         floors.add(officeFloor);
     }
 
     public void buildHostelFloor() throws Exception {
+        validateNotFinalized();
         if (floors.size() == heightInFloors) {
             throw new Exception("Already has all floors");
         }
         this.IFloorBuilder = new HostelFloorBuilder(this.floorArea);
-        Floor hostelFloor = this.IFloorBuilder
+        this.IFloorBuilder
                 .buildLivingRoom()
                 .buildDiningRoom()
                 .buildKitchen()
-                .buildHall()
                 .buildWC()
-                .getFloor();
+                .buildHall();
+
+        Floor hostelFloor = this.IFloorBuilder.finalizeFloor();
         floors.add(hostelFloor);
     }
 
     public void buildDefaultFloor() throws Exception {
+        validateNotFinalized();
         if (floors.size() == heightInFloors) {
             throw new Exception("Already has all floors");
         }
         this.IFloorBuilder = new DefaultFloorBuilder(this.floorArea);
-        Floor defaultFloor = this.IFloorBuilder
+        this.IFloorBuilder
                 .buildLivingRoom()
                 .buildDiningRoom()
                 .buildKitchen()
-                .buildHall()
                 .buildOffice()
                 .buildWC()
-                .getFloor();
+                .buildHall();
+
+        Floor defaultFloor = this.IFloorBuilder.finalizeFloor();
         floors.add(defaultFloor);
     }
 
+    public void finalizeBuilding() throws Exception {
+        if (floors.size() != heightInFloors) {
+            throw new Exception("Cannot finalize: Number of floors does not match the expected height");
+        }
+        setSensors();
+        isFinalized = true;
+    }
+
+    private void validateNotFinalized() throws Exception {
+        if (isFinalized) {
+            throw new Exception("Building is finalized and cannot be modified");
+        }
+    }
+
+    public boolean isFinalized() {
+        return isFinalized;
+    }
 }

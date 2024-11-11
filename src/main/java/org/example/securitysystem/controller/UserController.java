@@ -1,62 +1,60 @@
 package org.example.securitysystem.controller;
 
+import com.google.gson.Gson;
 import org.example.securitysystem.model.dto.UserRequest;
-import org.example.securitysystem.model.entity.building.Building;
 import org.example.securitysystem.model.entity.User;
 import org.example.securitysystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
-@Controller
+
+@RestController
+@RequestMapping("/api/user")
 public class UserController {
 
     private final UserService userService;
+    private final Gson gson;
 
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
+        this.gson = new Gson();
     }
 
-    @MessageMapping("/user/register")
-    @SendTo("/topic/user")
-    public String register(UserRequest request) {
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@RequestBody UserRequest request) {
         try {
-            return userService.registerUser(request.getUsername());
+            User user = userService.registerUser(request.getUsername());
+            return ResponseEntity.ok(gson.toJson(user));
         } catch (Exception e) {
-            return handleError(e);
+            return ResponseEntity.badRequest().body(handleError(e));
         }
     }
 
-    @MessageMapping("/user/login")
-    @SendTo("/topic/user")
-    public String login(UserRequest request) {
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody UserRequest request) {
         try {
-            return userService.loginUser(request.getUsername());
+            User user = userService.loginUser(request.getUsername());
+            return ResponseEntity.ok(gson.toJson(user));
         } catch (Exception e) {
-            return handleError(e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(handleError(e));
         }
     }
 
-    @MessageMapping("/user/accounts")
-    @SendTo("/topic/accounts")
-    public List<User> getAllAccounts() {
+    @GetMapping("/accounts")
+    public ResponseEntity<String> getAllAccounts() {
         try {
-            return userService.getAllUsers();
+            List<User> users = userService.getAllUsers();
+            return ResponseEntity.ok(gson.toJson(users));
         } catch (Exception e) {
-            // Тут ви можете визначити, який тип помилки повертати для цього методу
-            throw new RuntimeException("Error retrieving user accounts: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    // Метод для обробки помилок
     private String handleError(Exception e) {
-        // Можна додати більш детальну обробку залежно від типу винятку
         return "Error occurred: " + e.getMessage();
     }
 }

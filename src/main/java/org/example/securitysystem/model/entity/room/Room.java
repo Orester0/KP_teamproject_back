@@ -5,11 +5,12 @@ import lombok.Getter;
 import lombok.ToString;
 import org.example.securitysystem.model.entity.security_system.sensors.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public abstract class Room {
+public abstract class Room implements Serializable {
     protected double area;
     protected int amountOfPorts;
     private String roomId;

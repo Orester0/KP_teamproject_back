@@ -5,7 +5,7 @@ import org.example.securitysystem.model.entity.building.Floor;
 import org.example.securitysystem.model.entity.room.Room;
 
 @Getter
-abstract class AbstractFloorBuilder implements IFloorBuilder {
+public abstract class AbstractFloorBuilder implements IFloorBuilder {
     protected final double floorArea;
     protected final Floor floor;
     protected double remainingArea;
@@ -34,4 +34,14 @@ abstract class AbstractFloorBuilder implements IFloorBuilder {
         floor.addRoom(room);
         remainingArea -= area;
     }
+
+    public Floor finalizeFloor() {
+        if (remainingArea > 0 && !floor.getRooms().isEmpty()) {
+            Room lastRoom = floor.getRooms().get(floor.getRooms().size() - 1);
+            lastRoom.setArea(lastRoom.getArea() + remainingArea);
+            remainingArea = 0;
+        }
+        return this.floor;
+    }
+
 }

@@ -12,7 +12,6 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-
     private final UserRepository userRepository;
 
     @Autowired
@@ -20,22 +19,30 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public String registerUser(String username) {
+    public User registerUser(String username) {
         if (userRepository.findByUsername(username).isPresent()) {
-            return "Username already taken.";
+            throw new IllegalArgumentException("Username is already in use");
         }
         User newUser = new User(username);
-        userRepository.save(newUser);
-        return "User registered successfully.";
+        return userRepository.save(newUser);
     }
 
-    public String loginUser(String username) {
+    public User loginUser(String username) {
         Optional<User> user = userRepository.findByUsername(username);
-        return user.map(value -> "Welcome " + value.getUsername() + "!").orElse("User not found.");
+        if (user.isEmpty()) {
+            throw new IllegalArgumentException("Username is incorrect");
+        }
+        return user.get();
     }
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+
+    public User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found."));
     }
 
     public Building getUserBuilding(String username) {
@@ -44,10 +51,6 @@ public class UserService {
         return user.getBuilding();
     }
 
-    public User getUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found."));
-    }
 
     public void updateUser(User user) {
         userRepository.save(user);

@@ -1,12 +1,15 @@
 package org.example.securitysystem.model.entity.building;
 
+import lombok.Data;
 import org.example.securitysystem.model.entity.room.Room;
 import org.example.securitysystem.model.entity.security_system.sensors.Sensor;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Floor {
+@Data
+public class Floor implements Serializable {
     private List<Room> rooms = new ArrayList<>();
 
     public void addRoom(Room room) {
