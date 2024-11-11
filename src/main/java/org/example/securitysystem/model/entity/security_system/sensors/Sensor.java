@@ -6,8 +6,10 @@ import org.example.securitysystem.model.entity.security_system.SecurityColleague
 import org.example.securitysystem.model.model_controller.mediator.SecuritySystemMediator;
 import org.example.securitysystem.model.model_controller.observer.SecurityEventManager;
 
+import java.io.Serializable;
+
 @Data
-public abstract class Sensor implements SecurityColleague {
+public abstract class Sensor implements SecurityColleague, Serializable {
     protected SecuritySystemMediator securityMediator;
     protected SecurityEventManager securityEventManager;
 

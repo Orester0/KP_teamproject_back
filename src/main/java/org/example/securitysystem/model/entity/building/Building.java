@@ -9,6 +9,8 @@ import org.example.securitysystem.model.model_controller.builder.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Getter
 public class Building implements Serializable {
@@ -21,14 +23,24 @@ public class Building implements Serializable {
     @Expose
     private boolean isFinalized = false;
 
-    private IFloorBuilder IFloorBuilder;
+    private transient IFloorBuilder IFloorBuilder;
+
+    static Pattern shortenerPattern = Pattern.compile("^([a-zA-Z]{2}).*");
 
     public Building(int heightInFloors, double floorArea) {
         this.floorArea = floorArea;
         this.heightInFloors = heightInFloors;
     }
 
-    public void setSensors() throws Exception {
+    public static String shortenName(String name) {
+        Matcher matcher = shortenerPattern.matcher(name);
+        if (matcher.find()) {
+            return matcher.group(1).toUpperCase();
+        }
+        return name.substring(0, Math.min(2, name.length())).toUpperCase();
+    }
+
+    private void setSensors() throws Exception {
         validateNotFinalized();
         if (floors.size() != heightInFloors) {
             throw new Exception("Number of floors does not match the expected height");
@@ -37,23 +49,27 @@ public class Building implements Serializable {
         int floorNumber = 1;
         int roomNumber = 1;
         for (Floor floor : floors) {
+
             for (Room room : floor.getRooms()) {
                 room.calculateSensor();
 
                 StringBuilder floorAndRoomBuilder = new StringBuilder();
                 floorAndRoomBuilder.append(String.format("%02d", floorNumber));
+                floor.setHashID(floorAndRoomBuilder.toString());
 
-                String name1 = room.getClass().getSimpleName();
-                floorAndRoomBuilder.append("_").append(name1).append("_");
-
+                String roomShortName = shortenName(room.getClass().getSimpleName());
+                floorAndRoomBuilder.append("_").append(roomShortName).append("_");
                 floorAndRoomBuilder.append(String.format("%03d", roomNumber));
+
+
+                floor.setHashID(floorAndRoomBuilder.toString());
 
                 int sensorCount = 0;
                 for (Sensor sensor : room.getSensors()) {
                     StringBuilder sensorIdBuilder = new StringBuilder(floorAndRoomBuilder);
 
-                    String name2 = sensor.getClass().getSimpleName();
-                    sensorIdBuilder.append("_").append(name2).append("_");
+                    String sensorShortName = shortenName(sensor.getClass().getSimpleName());
+                    sensorIdBuilder.append("_").append(sensorShortName).append("_");
 
                     sensorIdBuilder.append(String.format("%03d", ++sensorCount));
                     sensor.setHashID(sensorIdBuilder.toString());
@@ -136,6 +152,7 @@ public class Building implements Serializable {
         }
         setSensors();
         isFinalized = true;
+        IFloorBuilder = null;
     }
 
     private void validateNotFinalized() throws Exception {
