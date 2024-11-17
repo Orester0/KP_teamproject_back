@@ -3,18 +3,15 @@ import org.example.securitysystem.model.entity.building.Building;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Random;
-import java.util.UUID;
-
 @Getter
 @Setter
-public class User {
+public class Session {
     private Long id;
-    private String username;
+    private String name;
     private Building building;
 
 
-    public User(String username) {
-        this.username = username;
+    public Session(String name) {
+        this.name = name;
     }
 }

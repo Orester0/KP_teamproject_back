@@ -1,7 +1,7 @@
 package org.example.securitysystem.model.entity.security_system.sensors;
 
+import com.google.gson.annotations.Expose;
 import lombok.Data;
-import lombok.Getter;
 import org.example.securitysystem.model.entity.security_system.SecurityColleague;
 import org.example.securitysystem.model.model_controller.mediator.SecuritySystemMediator;
 import org.example.securitysystem.model.model_controller.observer.SecurityEventManager;
@@ -13,7 +13,14 @@ public abstract class Sensor implements SecurityColleague, Serializable {
     protected SecuritySystemMediator securityMediator;
     protected SecurityEventManager securityEventManager;
 
-    protected String HashID;
+    @Expose
+    protected String ID;
+    @Expose
+    protected String SensorType;
+
+    public Sensor(String SensorType) {
+        this.SensorType = SensorType;
+    }
     @Override
     public void setMediator(SecuritySystemMediator mediator) {
         securityMediator = mediator;

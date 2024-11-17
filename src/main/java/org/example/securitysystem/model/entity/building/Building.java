@@ -40,6 +40,15 @@ public class Building implements Serializable {
         return name.substring(0, Math.min(2, name.length())).toUpperCase();
     }
 
+    public void finalizeBuilding() throws Exception {
+        if (floors.size() != heightInFloors) {
+            throw new Exception("Cannot finalize: Number of floors does not match the expected height");
+        }
+        setSensors();
+        isFinalized = true;
+        IFloorBuilder = null;
+    }
+
     private void setSensors() throws Exception {
         validateNotFinalized();
         if (floors.size() != heightInFloors) {
@@ -52,27 +61,19 @@ public class Building implements Serializable {
 
             for (Room room : floor.getRooms()) {
                 room.calculateSensor();
-
                 StringBuilder floorAndRoomBuilder = new StringBuilder();
+
                 floorAndRoomBuilder.append(String.format("%02d", floorNumber));
-                floor.setHashID(floorAndRoomBuilder.toString());
+                floor.setID(floorAndRoomBuilder.toString());
 
-                String roomShortName = shortenName(room.getClass().getSimpleName());
-                floorAndRoomBuilder.append("_").append(roomShortName).append("_");
-                floorAndRoomBuilder.append(String.format("%03d", roomNumber));
-
-
-                floor.setHashID(floorAndRoomBuilder.toString());
+                floorAndRoomBuilder.append(String.format("/%02d", roomNumber));
+                room.setID(floorAndRoomBuilder.toString());
 
                 int sensorCount = 0;
                 for (Sensor sensor : room.getSensors()) {
                     StringBuilder sensorIdBuilder = new StringBuilder(floorAndRoomBuilder);
-
-                    String sensorShortName = shortenName(sensor.getClass().getSimpleName());
-                    sensorIdBuilder.append("_").append(sensorShortName).append("_");
-
-                    sensorIdBuilder.append(String.format("%03d", ++sensorCount));
-                    sensor.setHashID(sensorIdBuilder.toString());
+                    sensorIdBuilder.append(String.format("/%02d", ++sensorCount));
+                    sensor.setID(sensorIdBuilder.toString());
                     sensorIdBuilder.setLength(floorAndRoomBuilder.length() - 3);
                 }
                 roomNumber++;
@@ -146,14 +147,6 @@ public class Building implements Serializable {
         floors.add(defaultFloor);
     }
 
-    public void finalizeBuilding() throws Exception {
-        if (floors.size() != heightInFloors) {
-            throw new Exception("Cannot finalize: Number of floors does not match the expected height");
-        }
-        setSensors();
-        isFinalized = true;
-        IFloorBuilder = null;
-    }
 
     private void validateNotFinalized() throws Exception {
         if (isFinalized) {

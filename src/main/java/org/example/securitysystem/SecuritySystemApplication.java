@@ -17,23 +17,17 @@ public class SecuritySystemApplication {
         SpringApplication.run(SecuritySystemApplication.class, args);
         System.out.println("Hello World!");
 
-        Building building = new Building(3, 100);
-        building.buildOfficeFloor();
-        building.buildOfficeFloor();
-        building.buildOfficeFloor();
-        building.finalizeBuilding();
-
         Gson gson = new Gson();
 
-        for(Floor floor : building.getFloors()) {
-            System.out.println(gson.toJson(floor));
-            for(Room room : floor.getRooms()) {
-                System.out.println(gson.toJson(room));
-                for(Sensor sensor : room.getSensors()) {
-                    System.out.println(gson.toJson(sensor));
-                }
-            }
+        Building asd = new Building(1, 20);
+
+        asd.buildOfficeFloor();
+
+        asd.finalizeBuilding();
+        for(Room room : asd.getFloors().get(0).getRooms()){
+            System.out.println(gson.toJson(room));
         }
-        System.out.println(gson.toJson(building));
+
+
     }
 }

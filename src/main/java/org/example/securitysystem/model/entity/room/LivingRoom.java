@@ -5,7 +5,7 @@ import org.example.securitysystem.model.entity.security_system.sensors.*;
 
 public class LivingRoom extends Room {
     public LivingRoom(double area, int amountOfPorts) {
-        super(area, amountOfPorts);
+        super(area, amountOfPorts, "LivingRoom");
     }
 
     @Override
