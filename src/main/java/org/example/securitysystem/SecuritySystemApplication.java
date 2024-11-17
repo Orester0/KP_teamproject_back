@@ -13,6 +13,9 @@ public class SecuritySystemApplication {
 
     public static void main(String[] args) throws Exception {
         SpringApplication.run(SecuritySystemApplication.class, args);
+        System.out.println("Hello World!");
+
+        Gson gson = new Gson();
         Building building = new Building(3, 100);
         try
         {
@@ -24,6 +27,16 @@ public class SecuritySystemApplication {
         catch (Exception e)
         {
             throw new RuntimeException(e);
+        }
+
+
+        Building asd = new Building(1, 20);
+
+        asd.buildOfficeFloor();
+
+        asd.finalizeBuilding();
+        for(Room room : asd.getFloors().get(0).getRooms()){
+            System.out.println(gson.toJson(room));
         }
 
 

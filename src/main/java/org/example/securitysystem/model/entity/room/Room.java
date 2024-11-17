@@ -2,8 +2,6 @@ package org.example.securitysystem.model.entity.room;
 
 import com.google.gson.annotations.Expose;
 import lombok.Data;
-import lombok.Getter;
-import lombok.ToString;
 import org.example.securitysystem.model.entity.security_system.sensors.*;
 
 import java.io.Serializable;
@@ -12,21 +10,21 @@ import java.util.List;
 
 @Data
 public abstract class Room implements Serializable {
-
     @Expose
     protected double area;
-
     @Expose
     protected int amountOfPorts;
-
     @Expose
-    protected String HashID;
+    protected String ID;
+    @Expose
+    protected String RoomType;
 
     protected List<Sensor> sensors = new ArrayList<>();
 
-    public Room(double area, int amountOfPorts) {
+    public Room(double area, int amountOfPorts, String RoomType) {
         this.area = area;
         this.amountOfPorts = amountOfPorts;
+        this.RoomType = RoomType;
     }
 
     public void addSensor(Sensor sensor) {
