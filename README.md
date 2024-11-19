@@ -13,7 +13,7 @@ The architecture uses the mediator and observer design patterns to efficiently m
 2. **Observer**: Listens to and reacts to security events.
 3. **Rooms & Sensors**: Defines different rooms equipped with sensors (motion, temperature, camera, and microphone).
 4. **Floor Builder**: Constructs rooms and organizes them into floors and buildings.
-5. **Controller**: Manages user interactions and requests for event handling.
+5. **Controller**: Manages session interactions and requests for event handling.
 6. **Database**: Stores event logs and sensor statuses.
 
 ### Diagram

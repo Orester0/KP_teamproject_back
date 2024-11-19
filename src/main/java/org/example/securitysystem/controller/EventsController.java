@@ -1,11 +1,20 @@
 package org.example.securitysystem.controller;
 
+import org.example.securitysystem.service.SessionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
 @Controller
 public class EventsController {
+    private final SessionService sessionService;
+
+    @Autowired
+    public EventsController(SessionService sessionService) {
+        this.sessionService = sessionService;
+    }
+
 
     @MessageMapping("/subscribe")
     @SendTo("/topic/events")

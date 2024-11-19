@@ -15,7 +15,7 @@ public class Floor implements Serializable {
     private List<Room> rooms = new ArrayList<>();
 
     @Expose
-    protected String HashID;
+    protected String ID;
 
     public void addRoom(Room room) {
         rooms.add(room);

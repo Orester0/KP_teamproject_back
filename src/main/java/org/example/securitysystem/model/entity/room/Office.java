@@ -6,7 +6,7 @@ import org.example.securitysystem.model.entity.security_system.sensors.*;
 
 public class Office extends Room {
     public Office(double area, int amountOfPorts) {
-        super(area, amountOfPorts);
+        super(area, amountOfPorts, "Office");
     }
 
     @Override
