@@ -19,14 +19,21 @@ public class SecuritySystemApplication {
 
         Gson gson = new Gson();
 
-        Building asd = new Building(1, 20);
+        Building asd = new Building(3, 99);
 
         asd.buildOfficeFloor();
+        asd.buildDefaultFloor();
+        asd.buildHostelFloor();
 
         asd.finalizeBuilding();
-        for(Room room : asd.getFloors().get(0).getRooms()){
-            System.out.println(gson.toJson(room));
+
+        for(Floor floor : asd.getFloors()) {
+            System.out.println(floor.getRooms().size());
+            for(Room room : floor.getRooms()){
+                System.out.println(gson.toJson(room));
+            }
         }
+
 
 
     }

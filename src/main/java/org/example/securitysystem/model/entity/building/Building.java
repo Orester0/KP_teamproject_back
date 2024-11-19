@@ -136,8 +136,8 @@ public class Building implements Serializable {
         }
         this.IFloorBuilder = new DefaultFloorBuilder(this.floorArea);
         this.IFloorBuilder
-                .buildLivingRoom()
                 .buildDiningRoom()
+                .buildLivingRoom()
                 .buildKitchen()
                 .buildOffice()
                 .buildWC()
