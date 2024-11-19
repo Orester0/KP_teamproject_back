@@ -1,7 +1,6 @@
 package org.example.securitysystem.model.entity.room;
 
 import org.example.securitysystem.config.SecurityConfig;
-import org.example.securitysystem.model.entity.security_system.SensorIDGenerator;
 import org.example.securitysystem.model.entity.security_system.sensors.*;
 
 public class Office extends Room {

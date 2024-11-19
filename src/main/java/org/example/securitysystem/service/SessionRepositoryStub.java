@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 @Repository
-public class SessionRepositoryStub implements SessionRepository {
+public class SessionRepositoryStub implements ISessionRepository {
 
     private final Map<Long, Session> sessions = new HashMap<>();
     private final AtomicLong idCounter = new AtomicLong();

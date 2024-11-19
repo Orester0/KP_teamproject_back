@@ -10,4 +10,12 @@ public class OfficeFloorConfig
     public static final double KITCHEN_RATIO = 0.10;
 
     public static final double AREA_PER_WINDOW = 8.0;
+
+
+    public static final double MIN_WC_AREA = 3;
+    public static final double MIN_DINING_AREA = 12;
+    public static final double MIN_LIVING_AREA = 6;
+    public static final double MIN_OFFICE_AREA = 12;
+    public static final double MIN_HALL_AREA = 9;
+    public static final double MIN_KITCHEN_AREA = 9;
 }
