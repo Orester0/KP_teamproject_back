@@ -14,7 +14,6 @@ public class LoggingFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        // Ініціалізація фільтра, якщо потрібно
     }
 
     @Override
@@ -24,10 +23,8 @@ public class LoggingFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        // Логування URL запиту та методу
         System.out.println("Incoming request: " + httpRequest.getMethod() + " " + httpRequest.getRequestURI());
 
-        // Логування заголовків запиту
         Enumeration<String> headerNames = httpRequest.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
@@ -35,7 +32,6 @@ public class LoggingFilter implements Filter {
             System.out.println("Header: " + headerName + " = " + headerValue);
         }
 
-        // Логування параметрів запиту
         String params = httpRequest.getParameterMap().entrySet().stream()
                 .map(entry -> entry.getKey() + "=" + String.join(",", entry.getValue()))
                 .collect(Collectors.joining("&"));
@@ -43,12 +39,10 @@ public class LoggingFilter implements Filter {
 
         chain.doFilter(request, response);
 
-        // Логування статусу відповіді
         System.out.println("Response status: " + httpResponse.getStatus());
     }
 
     @Override
     public void destroy() {
-        // Виконується при зупинці програми
     }
 }
