@@ -40,7 +40,7 @@ public class Building implements Serializable {
         return name.substring(0, Math.min(2, name.length())).toUpperCase();
     }
 
-    private void setSensors() throws Exception {
+    public void setSensors() throws Exception {
         validateNotFinalized();
         if (floors.size() != heightInFloors) {
             throw new Exception("Number of floors does not match the expected height");

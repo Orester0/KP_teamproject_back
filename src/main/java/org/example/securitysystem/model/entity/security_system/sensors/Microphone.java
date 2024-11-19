@@ -4,9 +4,9 @@ public class Microphone extends Sensor {
 
     @Override
     public void detect() throws Exception {
-        System.out.println("Heard Strange Sounds");
-        securityMediator.notify(this, "Strange Sounds");
-        securityEventManager.securityNotify("Strange Sounds", this);
+//        System.out.println("Heard Strange Sounds");
+        securityEventManager.securityNotify("Microphone", this);
+        securityMediator.notify(this, "Microphone");
 
     }
 }
