@@ -3,17 +3,18 @@ package org.example.securitysystem.service;
 import org.example.securitysystem.model.entity.Session;
 import org.example.securitysystem.model.entity.building.Building;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class SessionService {
-    private final SessionRepository sessionRepository;
+public class SessionService implements ISessionService {
+    private final ISessionRepository sessionRepository;
 
     @Autowired
-    public SessionService(SessionRepository sessionRepository) {
+    public SessionService(@Qualifier("sessionRepositoryStub") ISessionRepository sessionRepository) {
         this.sessionRepository = sessionRepository;
     }
 

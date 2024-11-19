@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SessionRepository extends JpaRepository<Session, Long> {
+public interface ISessionRepository extends JpaRepository<Session, Long> {
     Optional<Session> findByName(String username);
 }
