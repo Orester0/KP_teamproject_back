@@ -13,9 +13,10 @@ import java.util.List;
 public class Floor implements Serializable {
     @Expose
     private List<Room> rooms = new ArrayList<>();
-
     @Expose
     protected String ID;
+    @Expose
+    protected int floor;
 
     public void addRoom(Room room) {
         rooms.add(room);

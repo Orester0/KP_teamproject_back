@@ -19,7 +19,7 @@ public class EventLogger implements SecurityEventListener {
         buffer += sensorDetails.getClass().getSimpleName() + " was activated on " + now.format(formatter);
 
         if (sensorDetails instanceof Sensor sensor) {
-            buffer += " and hash " + sensor.getHash() + "\n";
+            buffer += " and hash " + sensor.getID() + "\n";
         } else {
             buffer += "\n";
         }
