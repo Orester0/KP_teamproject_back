@@ -38,7 +38,7 @@ public class SecuritySystemApplication {
         RobberSimulator simulator = new RobberSimulator(building);
         simulator.startSimulation(10);
 
-        Thread.sleep(1000);
+        Thread.sleep(10000);
         simulator.stopSimulation();
         System.out.println("Stopping simulation");
 

@@ -12,7 +12,7 @@ public class RobberSimulator {
     private final Random random;
     private final Building building;
     private final List<Thread> threads = new ArrayList<>();
-    private volatile boolean running = true; // Прапор для завершення потоків
+    private volatile boolean running = true;
 
     public RobberSimulator(Building b) {
         this.building = b;
@@ -51,7 +51,10 @@ public class RobberSimulator {
         for (int i = 0; i < triggerCount; i++) {
             Thread thread = new Thread(new SensorTriggerTask());
             threads.add(thread);
-            thread.start();
+        }
+
+        for (var t : threads) {
+            t.start();
         }
     }
 
@@ -75,18 +78,18 @@ public class RobberSimulator {
         public void run() {
             while (running) {
                 try {
+                    System.out.println(Thread.currentThread().getName() + " is triggering.");
+
                     triggerRandomSensor();
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
 
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+
             }
+            System.out.println(Thread.currentThread().getName() + " is stopping.");
+
         }
     }
 }
