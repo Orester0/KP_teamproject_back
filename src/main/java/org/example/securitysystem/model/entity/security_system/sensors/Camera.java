@@ -8,9 +8,9 @@ public class Camera extends Sensor {
 
     @Override
     public void detect() throws Exception {
-        System.out.println("Strange Object Detected");
-        securityMediator.notify(this, "Strange Object");
-        securityEventManager.securityNotify("Strange Object", this);
+//        System.out.println("Strange Object Detected");
+        securityEventManager.securityNotify("Camera", this);
+        securityMediator.notify(this, "Camera");
 
     }
 }

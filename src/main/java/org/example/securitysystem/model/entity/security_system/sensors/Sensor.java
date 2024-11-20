@@ -29,4 +29,8 @@ public abstract class Sensor implements SecurityColleague, Serializable {
     public void setEventManager(SecurityEventManager eventManager) { securityEventManager = eventManager;}
 
     public abstract  void detect() throws Exception; //цікаво чи розділити на два методи
+
+    public String getHash() {
+        return HashID;
+    }
 }

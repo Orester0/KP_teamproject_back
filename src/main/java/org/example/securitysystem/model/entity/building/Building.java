@@ -61,8 +61,8 @@ public class Building implements Serializable {
 
             for (Room room : floor.getRooms()) {
                 room.calculateSensor();
-                StringBuilder floorAndRoomBuilder = new StringBuilder();
 
+                StringBuilder floorAndRoomBuilder = new StringBuilder();
                 floorAndRoomBuilder.append(String.format("%02d", floorNumber));
                 floor.setID(floorAndRoomBuilder.toString());
 
@@ -136,8 +136,8 @@ public class Building implements Serializable {
         }
         this.IFloorBuilder = new DefaultFloorBuilder(this.floorArea);
         this.IFloorBuilder
-                .buildDiningRoom()
                 .buildLivingRoom()
+                .buildDiningRoom()
                 .buildKitchen()
                 .buildOffice()
                 .buildWC()
@@ -147,6 +147,14 @@ public class Building implements Serializable {
         floors.add(defaultFloor);
     }
 
+    public void finalizeBuilding() throws Exception {
+        if (floors.size() != heightInFloors) {
+            throw new Exception("Cannot finalize: Number of floors does not match the expected height");
+        }
+        setSensors();
+        isFinalized = true;
+        IFloorBuilder = null;
+    }
 
     private void validateNotFinalized() throws Exception {
         if (isFinalized) {
