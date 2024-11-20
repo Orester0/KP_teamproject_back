@@ -5,22 +5,23 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "sensors")
+@Table(name = "sensor")
 @Getter
 @Setter
-public class Sensor {
+@Access(AccessType.FIELD)
+public class SensorDB {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sensor_id")
-    private long roomId;
+    private long sensorId;
 
-    @ManyToOne
-    @JoinColumn(name = "room_id")
-    private Floor floor;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "room_id", nullable = false)
+    private RoomDB room;
 
-    @Column(name = "type")
+    @Column(name = "type", nullable = false)
     private String type;
 
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     private boolean status;
 }

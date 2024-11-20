@@ -4,27 +4,30 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Id;
-import javax.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table
+@Table(name = "floor")
 @Getter
 @Setter
-public class Floor {
+@Access(AccessType.FIELD)
+public class FloorDB {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long floor_id;
+    @Column(name = "floor_id")
+    private long floorId;
 
-    @ManyToOne
-    @Column(name = "session_id")
-    @JoinColumn(name = "session_id")
-    private Session session;
+    @ManyToOne(fetch = FetchType.EAGER) // Використання LAZY для оптимізації
+    @JoinColumn(name = "session_id", nullable = false)
+    private SessionDB session;
 
+    @Column(name = "type", nullable = false)
     private String type;
 
-    @Column(name = "floor_number")
+    @Column(name = "floor_number", nullable = false)
     private int floorNumber;
 
-
+    @OneToMany(mappedBy = "floor", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<RoomDB> rooms = new ArrayList<>();
 }
