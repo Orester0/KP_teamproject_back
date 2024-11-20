@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Table(name = "sensor")
 @Getter
@@ -24,4 +26,7 @@ public class SensorDB {
 
     @Column(name = "status", nullable = false)
     private boolean status;
+
+    @OneToMany(mappedBy = "sensor")
+    private List<EventLog> eventLogs;
 }
