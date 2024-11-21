@@ -4,7 +4,6 @@ import org.example.securitysystem.model.entity.building.Floor;
 import org.example.securitysystem.model.entity.room.Room;
 
 public interface IFloorBuilder {
-    double floorArea = 0;
 
     IFloorBuilder buildWC();
     IFloorBuilder buildDiningRoom();

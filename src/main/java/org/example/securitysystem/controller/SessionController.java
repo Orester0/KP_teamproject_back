@@ -46,7 +46,7 @@ public class SessionController {
     }
 
     @GetMapping("/accounts")
-    public ResponseEntity<String> getAllAccounts() {
+    public ResponseEntity<String> getAllSessions() {
         try {
             List<Session> sessions = sessionService.getAllSessions();
             return ResponseEntity.ok(gson.toJson(sessions));

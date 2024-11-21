@@ -21,6 +21,7 @@ public class EventLogger implements SecurityEventListener {
     public static String buffer = "";
 
 
+
     // функція яка логує всі дії з сенсорами та алярмами
     @Override
     public synchronized void update(String eventType, SecurityColleague sensorDetails) {
