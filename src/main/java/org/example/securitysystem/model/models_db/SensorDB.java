@@ -24,9 +24,6 @@ public class SensorDB {
     @Column(name = "type", nullable = false)
     private String type;
 
-    @Column(name = "status", nullable = false)
-    private boolean status;
-
     @OneToMany(mappedBy = "sensor")
     private List<EventLog> eventLogs;
 }
