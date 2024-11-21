@@ -16,7 +16,7 @@ public class Floor implements Serializable {
     @Expose
     protected String ID;
     @Expose
-    protected int floor;
+    protected int floorNumber;
 
     public void addRoom(Room room) {
         rooms.add(room);

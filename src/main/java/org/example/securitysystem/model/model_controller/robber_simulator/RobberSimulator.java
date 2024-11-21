@@ -29,6 +29,7 @@ public class RobberSimulator {
     }
 
     public void triggerRandomSensor() throws Exception {
+
         List<Sensor> sensors = getListOfAllSensors();
 
         if (sensors.isEmpty()) {

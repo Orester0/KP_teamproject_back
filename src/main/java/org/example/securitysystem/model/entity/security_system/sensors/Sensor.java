@@ -12,7 +12,6 @@ import java.io.Serializable;
 public abstract class Sensor implements SecurityColleague, Serializable {
     protected SecuritySystemMediator securityMediator;
     protected SecurityEventManager securityEventManager;
-
     @Expose
     protected String ID;
     @Expose
