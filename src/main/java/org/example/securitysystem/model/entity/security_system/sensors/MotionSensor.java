@@ -8,8 +8,8 @@ public class MotionSensor extends Sensor {
 
     @Override
     public void detect() throws Exception {
-        System.out.println("Motion Detected!!");
-        securityMediator.notify(this, "Motion Detected");
-        securityEventManager.securityNotify("Motion Detected", this);
+        securityEventManager.securityNotify("MotionSensor", this);
+        securityMediator.notify(this, "MotionSensor");
+
     }
 }

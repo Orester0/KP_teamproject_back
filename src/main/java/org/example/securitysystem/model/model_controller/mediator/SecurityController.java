@@ -15,7 +15,7 @@ public class SecurityController implements SecuritySystemMediator {
     public void notify(SecurityColleague sender, String event) throws Exception {
         List<SecurityColleague> sirens, speakers;
         switch (event) {
-            case "Motion Detected":
+            case "MotionSensor":
                 sirens = colleagues.get("Siren");
                 speakers = colleagues.get("Speakers");
                 for (SecurityColleague siren : sirens) {
@@ -26,19 +26,19 @@ public class SecurityController implements SecuritySystemMediator {
                 }
                 break;
 
-            case "Strange Object":
+            case "Camera":
                 sirens = colleagues.get("Siren");
                 for (SecurityColleague siren : sirens) {
                     ((AlarmSystem) siren).activateAlarm();
                 }
                 break;
-            case "Strange Sounds":
+            case "Microphone":
                 speakers = colleagues.get("Speakers");
                 for (SecurityColleague speaker : speakers) {
                     ((AlarmSystem) speaker).activateAlarm();
                 }
                 break;
-            case "High Temperature":
+            case "TemperatureSensor":
                 sirens = colleagues.get("Siren");
                 speakers = colleagues.get("Speakers");
                 for (SecurityColleague speaker : speakers) {

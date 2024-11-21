@@ -25,19 +25,9 @@ public class Building implements Serializable {
 
     private transient IFloorBuilder IFloorBuilder;
 
-    static Pattern shortenerPattern = Pattern.compile("^([a-zA-Z]{2}).*");
-
     public Building(int heightInFloors, double floorArea) {
         this.floorArea = floorArea;
         this.heightInFloors = heightInFloors;
-    }
-
-    public static String shortenName(String name) {
-        Matcher matcher = shortenerPattern.matcher(name);
-        if (matcher.find()) {
-            return matcher.group(1).toUpperCase();
-        }
-        return name.substring(0, Math.min(2, name.length())).toUpperCase();
     }
 
     public void finalizeBuilding() throws Exception {
@@ -56,30 +46,12 @@ public class Building implements Serializable {
         }
 
         int floorNumber = 1;
-        int roomNumber = 1;
-        for (Floor floor : floors) {
 
+        for (Floor floor : floors) {
+            floor.setFloorNumber(floorNumber++);
             for (Room room : floor.getRooms()) {
                 room.calculateSensor();
-                StringBuilder floorAndRoomBuilder = new StringBuilder();
-
-                floorAndRoomBuilder.append(String.format("%02d", floorNumber));
-                floor.setID(floorAndRoomBuilder.toString());
-
-                floorAndRoomBuilder.append(String.format("/%02d", roomNumber));
-                room.setID(floorAndRoomBuilder.toString());
-
-                int sensorCount = 0;
-                for (Sensor sensor : room.getSensors()) {
-                    StringBuilder sensorIdBuilder = new StringBuilder(floorAndRoomBuilder);
-                    sensorIdBuilder.append(String.format("/%02d", ++sensorCount));
-                    sensor.setID(sensorIdBuilder.toString());
-                    sensorIdBuilder.setLength(floorAndRoomBuilder.length() - 3);
-                }
-                roomNumber++;
             }
-            floorNumber++;
-            roomNumber = 1;
         }
     }
 
@@ -136,8 +108,8 @@ public class Building implements Serializable {
         }
         this.IFloorBuilder = new DefaultFloorBuilder(this.floorArea);
         this.IFloorBuilder
-                .buildDiningRoom()
                 .buildLivingRoom()
+                .buildDiningRoom()
                 .buildKitchen()
                 .buildOffice()
                 .buildWC()

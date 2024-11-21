@@ -12,7 +12,6 @@ import java.io.Serializable;
 public abstract class Sensor implements SecurityColleague, Serializable {
     protected SecuritySystemMediator securityMediator;
     protected SecurityEventManager securityEventManager;
-
     @Expose
     protected String ID;
     @Expose
@@ -29,4 +28,5 @@ public abstract class Sensor implements SecurityColleague, Serializable {
     public void setEventManager(SecurityEventManager eventManager) { securityEventManager = eventManager;}
 
     public abstract  void detect() throws Exception; //цікаво чи розділити на два методи
+
 }

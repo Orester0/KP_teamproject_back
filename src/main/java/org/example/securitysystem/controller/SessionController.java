@@ -1,6 +1,7 @@
 package org.example.securitysystem.controller;
 
 import com.google.gson.Gson;
+import org.example.securitysystem.model.dto.LogRequest;
 import org.example.securitysystem.model.dto.SessionRequest;
 import org.example.securitysystem.model.entity.Session;
 import org.example.securitysystem.service.SessionService;
@@ -49,6 +50,17 @@ public class SessionController {
         try {
             List<Session> sessions = sessionService.getAllSessions();
             return ResponseEntity.ok(gson.toJson(sessions));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/getlogs")
+    public ResponseEntity<String> getLogs(LogRequest request) {
+        try {
+            //List<Session> sessions = sessionService.getAllSessions();
+            String logs = "";
+            return ResponseEntity.ok(gson.toJson(logs));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

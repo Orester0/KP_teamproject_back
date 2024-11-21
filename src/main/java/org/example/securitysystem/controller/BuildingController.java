@@ -99,6 +99,14 @@ public class BuildingController {
             }
             building.finalizeBuilding();
             sessionService.updateSession(session);
+
+
+            // get full building from database with IDs
+            // from some service
+
+
+
+
             return ResponseEntity.ok("Building finalized successfully.");
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(handleError(e));
