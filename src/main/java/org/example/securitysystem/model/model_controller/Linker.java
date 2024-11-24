@@ -4,18 +4,18 @@ import org.example.securitysystem.model.entity.building.Building;
 import org.example.securitysystem.model.entity.security_system.alarms.AlarmSystem;
 import org.example.securitysystem.model.entity.security_system.alarms.SirenLight;
 import org.example.securitysystem.model.entity.security_system.alarms.SpeakersAlarm;
-import org.example.securitysystem.model.model_controller.mediator.SecurityController;
+import org.example.securitysystem.model.model_controller.mediator.SecurityMediator;
 import org.example.securitysystem.model.model_controller.observer.SecurityEventManager;
 import org.example.securitysystem.model.model_controller.observer.listener.EventLogger;
 import org.example.securitysystem.model.model_controller.observer.listener.SecurityEventListener;
 
 public class Linker {
     Building b;
-    SecurityController sc;
+    SecurityMediator sc;
     SecurityEventManager sem;
     SecurityEventListener el;
 
-    public Linker(Building b, SecurityController sc, SecurityEventManager sem) {
+    public Linker(Building b, SecurityMediator sc, SecurityEventManager sem, EventLogger el) {
         this.b = b;
         this.sc = sc;
         this.sem = sem;
@@ -28,7 +28,7 @@ public class Linker {
         siren.setEventManager(sem);
         speakers.setEventManager(sem);
 
-        el = new EventLogger();
+        this.el = el;
         sem.subscribe(el);
     }
 

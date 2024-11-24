@@ -38,6 +38,10 @@ public class EventLogger implements SecurityEventListener {
         return buffer;
     }
 
+    public void clearBuffer() {
+        buffer = "";
+    }
+
     // окремий потік який періодично загружає буфер у базу даних
     private class DatabaseLogger implements Runnable {
 

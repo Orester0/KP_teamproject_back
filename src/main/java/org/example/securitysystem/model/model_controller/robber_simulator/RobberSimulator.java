@@ -13,23 +13,24 @@ public class RobberSimulator {
     private final Building building;
     private final List<Thread> threads = new ArrayList<>();
     private volatile boolean running = true;
+    private volatile boolean paused = false;
+    private final Object pauseLock = new Object();
 
     public RobberSimulator(Building b) {
         this.building = b;
         this.random = new Random();
     }
 
-    public List<Sensor> getListOfAllSensors(){
+    public List<Sensor> getListOfAllSensors() {
         List<Sensor> sensors = new ArrayList<>();
 
-        for(Floor floor : building.getFloors()){
+        for (Floor floor : building.getFloors()) {
             sensors.addAll(floor.getSensors());
         }
         return sensors;
     }
 
     public void triggerRandomSensor() throws Exception {
-
         List<Sensor> sensors = getListOfAllSensors();
 
         if (sensors.isEmpty()) {
@@ -42,6 +43,7 @@ public class RobberSimulator {
         try {
             Thread.sleep(triggerTime);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             e.printStackTrace();
         }
 
@@ -73,11 +75,38 @@ public class RobberSimulator {
         threads.clear();
     }
 
+    public void pauseSimulation() {
+        synchronized (pauseLock) {
+            paused = true;
+            System.out.println("Simulation paused.");
+        }
+    }
+
+    public void continueSimulation() {
+        synchronized (pauseLock) {
+            paused = false;
+            pauseLock.notifyAll();
+            System.out.println("Simulation resumed.");
+        }
+    }
+
     private class SensorTriggerTask implements Runnable {
 
         @Override
         public void run() {
             while (running) {
+                synchronized (pauseLock) {
+                    while (paused) {
+                        try {
+                            pauseLock.wait();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            e.printStackTrace();
+                            return;
+                        }
+                    }
+                }
+
                 try {
                     System.out.println(Thread.currentThread().getName() + " is triggering.");
                     triggerRandomSensor();
@@ -85,11 +114,8 @@ public class RobberSimulator {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
-
-
             }
             System.out.println(Thread.currentThread().getName() + " is stopping.");
-
         }
     }
 }

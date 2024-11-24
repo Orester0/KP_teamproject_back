@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SecurityController implements SecuritySystemMediator {
+public class SecurityMediator implements SecuritySystemMediator {
     private final Map<String, List<SecurityColleague>> colleagues = new HashMap<>();
 
     @Override
