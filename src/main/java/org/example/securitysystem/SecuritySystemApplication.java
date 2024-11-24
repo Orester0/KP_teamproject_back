@@ -18,32 +18,5 @@ public class SecuritySystemApplication {
         SpringApplication.run(SecuritySystemApplication.class, args);
 
 
-        Building building = new Building(1, 100);
-
-        building.buildOfficeFloor();
-        building.finalizeBuilding();
-
-
-        SecurityController securityController = new SecurityController();
-        SecurityEventManager securityEventManager = new SecurityEventManager();
-
-        Linker l = new Linker(building, securityController, securityEventManager);
-        l.link();
-
-        RobberSimulator rb = new RobberSimulator(building);
-
-        rb.startSimulation(1);
-
-
-        Thread.sleep(5000);
-        rb.stopSimulation();
-
-
-        System.out.println(l.getBuffer());
-
-
-
-
-
     }
 }

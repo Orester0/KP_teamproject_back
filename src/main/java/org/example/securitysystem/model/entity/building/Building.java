@@ -2,6 +2,7 @@ package org.example.securitysystem.model.entity.building;
 
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
+import org.example.securitysystem.exception.BuildingException;
 import org.example.securitysystem.model.entity.room.*;
 import org.example.securitysystem.model.entity.security_system.sensors.*;
 import org.example.securitysystem.model.model_controller.builder.*;
@@ -25,52 +26,71 @@ public class Building implements Serializable {
 
     private transient IFloorBuilder IFloorBuilder;
 
-    public Building(int heightInFloors, double floorArea) {
+    public Building(int heightInFloors, double floorArea)
+    {
         this.floorArea = floorArea;
         this.heightInFloors = heightInFloors;
     }
 
-    public void finalizeBuilding() throws Exception {
-        if (floors.size() != heightInFloors) {
-            throw new Exception("Cannot finalize: Number of floors does not match the expected height");
+    public void finalizeBuilding() throws BuildingException
+    {
+        if (floors.size() != heightInFloors)
+        {
+            throw new BuildingException("Cannot finalize: Number of floors does not match the expected height");
         }
         setSensors();
         isFinalized = true;
         IFloorBuilder = null;
     }
 
-    private void setSensors() throws Exception {
+    private void setSensors() throws BuildingException
+    {
         validateNotFinalized();
-        if (floors.size() != heightInFloors) {
-            throw new Exception("Number of floors does not match the expected height");
+        if (floors.size() != heightInFloors)
+        {
+            throw new BuildingException("Number of floors does not match the expected height");
         }
 
+        int sensorNumber = 1;
+        int roomNumber = 1;
         int floorNumber = 1;
 
-        for (Floor floor : floors) {
+        for (Floor floor : floors)
+        {
             floor.setFloorNumber(floorNumber++);
-            for (Room room : floor.getRooms()) {
+            for (Room room : floor.getRooms())
+            {
+                room.setID(String.valueOf(roomNumber++));
                 room.calculateSensor();
+                for(Sensor sensor : room.getSensors())
+                {
+                    sensor.setID(String.valueOf(sensorNumber++));
+                }
             }
         }
     }
 
-    public void removeFloor(int id) throws Exception {
+    public void removeFloor(int floorNumber) throws BuildingException
+    {
         validateNotFinalized();
-        if (id < 0 || id >= floors.size()) {
-            throw new Exception("Invalid ID");
+        if (floorNumber < 0 || floorNumber >= floors.size())
+        {
+            throw new BuildingException("Invalid number of floor");
         }
-        try {
-            floors.remove(id);
-        } catch (Exception e) {
-            throw new Exception("Can't remove floor");
+        try
+        {
+            floors.remove(floorNumber);
+        }
+        catch (Exception e)
+        {
+            throw new BuildingException("Can't remove floor");
         }
     }
 
-    public void buildOfficeFloor() throws Exception {
+    public void buildOfficeFloor() throws BuildingException {
         validateNotFinalized();
         if (floors.size() == heightInFloors) {
-            throw new Exception("Already has all floors");
+            throw new BuildingException("Already has all floors");
         }
         this.IFloorBuilder = new OfficeFloorBuilder(this.floorArea);
         this.IFloorBuilder
@@ -84,10 +104,10 @@ public class Building implements Serializable {
         floors.add(officeFloor);
     }
 
-    public void buildHostelFloor() throws Exception {
+    public void buildHostelFloor() throws BuildingException {
         validateNotFinalized();
         if (floors.size() == heightInFloors) {
-            throw new Exception("Already has all floors");
+            throw new BuildingException("Already has all floors");
         }
         this.IFloorBuilder = new HostelFloorBuilder(this.floorArea);
         this.IFloorBuilder
@@ -101,10 +121,10 @@ public class Building implements Serializable {
         floors.add(hostelFloor);
     }
 
-    public void buildDefaultFloor() throws Exception {
+    public void buildDefaultFloor() throws BuildingException {
         validateNotFinalized();
         if (floors.size() == heightInFloors) {
-            throw new Exception("Already has all floors");
+            throw new BuildingException("Already has all floors");
         }
         this.IFloorBuilder = new DefaultFloorBuilder(this.floorArea);
         this.IFloorBuilder
@@ -120,9 +140,9 @@ public class Building implements Serializable {
     }
 
 
-    private void validateNotFinalized() throws Exception {
+    private void validateNotFinalized() throws BuildingException {
         if (isFinalized) {
-            throw new Exception("Building is finalized and cannot be modified");
+            throw new BuildingException("Building is finalized and cannot be modified");
         }
     }
 
