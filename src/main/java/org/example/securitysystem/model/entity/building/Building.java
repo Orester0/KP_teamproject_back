@@ -149,4 +149,9 @@ public class Building implements Serializable {
     public boolean isFinalized() {
         return isFinalized;
     }
+
+    public void addFloor(Floor floor){
+        floors.add(floor);
+    }
+
 }

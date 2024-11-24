@@ -2,6 +2,8 @@ package org.example.securitysystem.model.entity.room;
 
 import com.google.gson.annotations.Expose;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.example.securitysystem.model.entity.security_system.sensors.*;
 
 import java.io.Serializable;
@@ -9,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@Getter
+@Setter
 public abstract class Room implements Serializable {
     @Expose
     protected double area;
