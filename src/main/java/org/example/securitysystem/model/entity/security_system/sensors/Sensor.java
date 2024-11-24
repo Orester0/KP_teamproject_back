@@ -29,4 +29,8 @@ public abstract class Sensor implements SecurityColleague, Serializable {
 
     public abstract  void detect() throws Exception; //цікаво чи розділити на два методи
 
+    public String getType() {
+        return this.getType();
+    }
+
 }

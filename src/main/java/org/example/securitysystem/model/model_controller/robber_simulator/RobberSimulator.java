@@ -48,8 +48,8 @@ public class RobberSimulator {
         sensor.detect();
     }
 
-    public void startSimulation(int triggerCount) {
-        for (int i = 0; i < triggerCount; i++) {
+    public void startSimulation(int threadCount) {
+        for (int i = 0; i < threadCount; i++) {
             Thread thread = new Thread(new SensorTriggerTask());
             threads.add(thread);
         }
@@ -80,7 +80,6 @@ public class RobberSimulator {
             while (running) {
                 try {
                     System.out.println(Thread.currentThread().getName() + " is triggering.");
-
                     triggerRandomSensor();
                 } catch (Exception e) {
                     e.printStackTrace();

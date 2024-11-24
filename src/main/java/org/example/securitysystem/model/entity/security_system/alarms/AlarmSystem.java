@@ -8,6 +8,8 @@ public abstract class AlarmSystem implements SecurityColleague {
     protected SecuritySystemMediator securityMediator;
     protected SecurityEventManager securityEventManager;
 
+    protected Boolean isActive = false;
+
     @Override
     public void setMediator(SecuritySystemMediator mediator) {
         securityMediator = mediator;
@@ -15,4 +17,5 @@ public abstract class AlarmSystem implements SecurityColleague {
 
     public void setEventManager(SecurityEventManager eventManager) { securityEventManager = eventManager;}
     public abstract void activateAlarm() throws Exception;
+    public abstract  void deactivateAlarm() throws  Exception;
 }

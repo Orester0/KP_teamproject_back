@@ -11,7 +11,5 @@ public class TemperatureSensor extends Sensor {
 //        System.out.println("High Temperature Detected!");
         securityEventManager.securityNotify("TemperatureSensor", this);
         securityMediator.notify(this, "TemperatureSensor");
-
-
     }
 }
