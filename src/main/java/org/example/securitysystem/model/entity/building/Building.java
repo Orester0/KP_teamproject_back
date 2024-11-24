@@ -64,7 +64,7 @@ public class Building implements Serializable {
                 room.calculateSensor();
                 for(Sensor sensor : room.getSensors())
                 {
-                    sensor.setID(String.valueOf(sensorNumber++));
+                    sensor.setID((sensorNumber++));
                 }
             }
         }

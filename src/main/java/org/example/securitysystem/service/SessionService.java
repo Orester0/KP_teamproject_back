@@ -98,7 +98,7 @@ public class SessionService implements ISessionService {
         SessionDB newSession = SessionMapper.mapToSessionDB(session);
             sessionRepository.save(newSession);
         }
-
+        //return building
         catch (Exception e) {
         throw new RuntimeException("Failed to map SessionDB to Session", e);
     }
