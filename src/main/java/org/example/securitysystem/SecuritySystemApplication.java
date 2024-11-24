@@ -17,5 +17,6 @@ public class SecuritySystemApplication {
     public static void main(String[] args) throws Exception {
         SpringApplication.run(SecuritySystemApplication.class, args);
 
+
     }
 }

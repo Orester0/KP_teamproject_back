@@ -31,7 +31,7 @@ public class SessionController {
             Session session = sessionService.createSession(request.getName());
             return ResponseEntity.ok(gson.toJson(session));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(handleError(e));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(handleError(e));
         }
     }
 

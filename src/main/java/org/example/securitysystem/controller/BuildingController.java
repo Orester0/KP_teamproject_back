@@ -1,10 +1,12 @@
 package org.example.securitysystem.controller;
+import com.google.gson.Gson;
 import org.example.securitysystem.model.dto.BuildingRequest;
 import org.example.securitysystem.model.dto.SimulationResponse;
 import org.example.securitysystem.model.entity.Session;
 import org.example.securitysystem.model.entity.building.Building;
 import org.example.securitysystem.service.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,11 +15,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/building")
 public class BuildingController {
 
+    private final Gson gson;
     private final SessionService sessionService;
 
     @Autowired
     public BuildingController(SessionService sessionService) {
         this.sessionService = sessionService;
+        this.gson = new Gson();
     }
 
     @PostMapping("/create")
@@ -25,10 +29,10 @@ public class BuildingController {
         try {
             var session = sessionService.getSession(request.getSessionId());
             if (session == null) {
-                return ResponseEntity.badRequest().body("Session not found.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Session not found");
             }
             if (session.getBuilding() != null) {
-                return ResponseEntity.badRequest().body("Session already has a building associated.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Session already has a building associated.");
             }
 
             Building building = new Building(request.getHeightInFloors(), request.getFloorArea());
@@ -42,12 +46,12 @@ public class BuildingController {
     }
 
     @PostMapping("/addDefaultFloor")
-    public ResponseEntity<String> addDefaultFloor(@RequestBody BuildingRequest request) {
+    public ResponseEntity<String> addDefaultFloor(@RequestParam Long sessionId) {
         try {
-            var session = sessionService.getSession(request.getSessionId());
+            var session = sessionService.getSession(sessionId);
             Building building = getBuildingFromSession(session);
             if (building.isFinalized()) {
-                return ResponseEntity.badRequest().body("Cannot modify finalized building.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot modify finalized building.");
             }
             building.buildDefaultFloor();
             sessionService.updateSession(session);
@@ -58,12 +62,12 @@ public class BuildingController {
     }
 
     @PostMapping("/addOfficeFloor")
-    public ResponseEntity<String> addOfficeFloor(@RequestBody BuildingRequest request) {
+    public ResponseEntity<String> addOfficeFloor(@RequestParam Long sessionId) {
         try {
-            var session = sessionService.getSession(request.getSessionId());
+            var session = sessionService.getSession(sessionId);
             Building building = getBuildingFromSession(session);
             if (building.isFinalized()) {
-                return ResponseEntity.badRequest().body("Cannot modify finalized building.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot modify finalized building.");
             }
             building.buildOfficeFloor();
             sessionService.updateSession(session);
@@ -74,12 +78,12 @@ public class BuildingController {
     }
 
     @PostMapping("/addHostelFloor")
-    public ResponseEntity<String> addHostelFloor(@RequestBody BuildingRequest request) {
+    public ResponseEntity<String> addHostelFloor(@RequestParam Long sessionId) {
         try {
-            var session = sessionService.getSession(request.getSessionId());
+            var session = sessionService.getSession(sessionId);
             Building building = getBuildingFromSession(session);
             if (building.isFinalized()) {
-                return ResponseEntity.badRequest().body("Cannot modify finalized building.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot modify finalized building.");
             }
             building.buildHostelFloor();
             sessionService.updateSession(session);
@@ -95,7 +99,7 @@ public class BuildingController {
             var session = sessionService.getSession(sessionId);
             Building building = getBuildingFromSession(session);
             if (building.isFinalized()) {
-                return ResponseEntity.badRequest().body("Building is already finalized.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Building is already finalized.");
             }
             building.finalizeBuilding();
             sessionService.updateSession(session);
@@ -120,11 +124,13 @@ public class BuildingController {
             Building building = getBuildingFromSession(session);
 
             if (!building.isFinalized()) {
-                return ResponseEntity.badRequest()
+
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new SimulationResponse(null, "Building must be finalized before starting simulation"));
             }
 
-            String socketTopic = "asd";//simulationService.startSimulation(userId, building);
+            String socketTopic = "asd";
+            //simulationService.startSimulation(userId, building);
 
             return ResponseEntity.ok(new SimulationResponse(socketTopic, "Simulation started successfully"));
         } catch (Exception e) {
@@ -134,14 +140,14 @@ public class BuildingController {
     }
 
     @GetMapping("/config")
-    public ResponseEntity<Building> getBuildingConfig(@RequestParam Long sessionId) {
+    public ResponseEntity<String> getBuildingConfig(@RequestParam Long sessionId) {
         try {
             var session = sessionService.getSession(sessionId);
             Building building = getBuildingFromSession(session);
             if (!building.isFinalized()) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Building is not finalized");
             }
-            return ResponseEntity.ok(building);
+            return ResponseEntity.ok(gson.toJson(building));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
@@ -153,7 +159,7 @@ public class BuildingController {
             var session = sessionService.getSession(sessionId);
             Building building = getBuildingFromSession(session);
             if (building.isFinalized()) {
-                return ResponseEntity.badRequest().body("Cannot modify finalized building.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot modify finalized building.");
             }
             building.removeFloor(floorId);
             sessionService.updateSession(session);
