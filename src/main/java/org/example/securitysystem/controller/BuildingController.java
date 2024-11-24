@@ -5,6 +5,8 @@ import org.example.securitysystem.model.dto.SimulationResponse;
 import org.example.securitysystem.model.entity.Session;
 import org.example.securitysystem.model.entity.building.Building;
 import org.example.securitysystem.service.SessionService;
+import org.example.securitysystem.service.SimulationService;
+import org.example.securitysystem.service.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +19,14 @@ public class BuildingController {
 
     private final Gson gson;
     private final SessionService sessionService;
+    private final WebSocketService webSocketService;
+    private final SimulationService simulationService;
 
     @Autowired
-    public BuildingController(SessionService sessionService) {
+    public BuildingController(SessionService sessionService, WebSocketService webSocketService, SimulationService simulationService) {
         this.sessionService = sessionService;
+        this.webSocketService = webSocketService;
+        this.simulationService = simulationService;
         this.gson = new Gson();
     }
 
@@ -124,13 +130,12 @@ public class BuildingController {
             Building building = getBuildingFromSession(session);
 
             if (!building.isFinalized()) {
-
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new SimulationResponse(null, "Building must be finalized before starting simulation"));
             }
 
-            String socketTopic = "asd";
-            //simulationService.startSimulation(userId, building);
+            String socketTopic = webSocketService.createTopicForSession(sessionId);
+            simulationService.startSimulation(sessionId, building, socketTopic);
 
             return ResponseEntity.ok(new SimulationResponse(socketTopic, "Simulation started successfully"));
         } catch (Exception e) {
@@ -138,6 +143,53 @@ public class BuildingController {
                     .body(new SimulationResponse(null, "Error: " + e.getMessage()));
         }
     }
+
+
+    @PostMapping("/stopSimulation")
+    public ResponseEntity<SimulationResponse> stopSimulation(@RequestParam Long sessionId) {
+        try {
+            var session = sessionService.getSession(sessionId);
+            Building building = getBuildingFromSession(session);
+
+            simulationService.stopSimulation(sessionId);
+            return ResponseEntity.ok(new SimulationResponse(null, "Simulation stopped successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new SimulationResponse(null, "Error: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/pauseSimulation")
+    public ResponseEntity<SimulationResponse> pauseSimulation(@RequestParam Long sessionId) {
+        try {
+            var session = sessionService.getSession(sessionId);
+            Building building = getBuildingFromSession(session);
+
+            simulationService.pauseSimulation(sessionId);
+            return ResponseEntity.ok(new SimulationResponse(null, "Simulation paused successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new SimulationResponse(null, "Error: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/resumeSimulation")
+    public ResponseEntity<SimulationResponse> resumeSimulation(@RequestParam Long sessionId) {
+        try {
+            if (!simulationService.isSimulationPaused(sessionId)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new SimulationResponse(null, "No paused simulation found"));
+            }
+
+            simulationService.resumeSimulation(sessionId);
+            return ResponseEntity.ok(new SimulationResponse(null, "Simulation resumed successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new SimulationResponse(null, "Error: " + e.getMessage()));
+        }
+    }
+
+
 
     @GetMapping("/config")
     public ResponseEntity<String> getBuildingConfig(@RequestParam Long sessionId) {

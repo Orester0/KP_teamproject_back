@@ -4,11 +4,11 @@ import lombok.Data;
 
 @Data
 public class SimulationResponse {
-    private String socketTopic;
+    private String topic;
     private String message;
 
-    public SimulationResponse(String socketTopic, String message) {
-        this.socketTopic = socketTopic;
+    public SimulationResponse(String topic, String message) {
+        this.topic = topic;
         this.message = message;
     }
 }
