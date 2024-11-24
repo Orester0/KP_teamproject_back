@@ -1,6 +1,7 @@
 package org.example.securitysystem.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.securitysystem.model.entity.security_system.SecurityColleague;
 import org.example.securitysystem.model.models_db.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -8,13 +9,14 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
 public class LogService {
 
     @Autowired
-    private ILogRepository logRepository; // Репозиторій для збереження логів
+    private ILogRepository logRepository;
 
     @Autowired
     private ISensorRepository sensorRepository;
@@ -24,7 +26,7 @@ public class LogService {
         this.sensorRepository = sensorRepository;
     }
 
-    public EventLog createEventLog(long sensorId) {
+    public EventLog createEventLog(long sensorId,LocalDateTime now) {
 
         SensorDB sensor = sensorRepository.findById(sensorId)
                 .orElseThrow(() -> new RuntimeException("Sensor not found"));
@@ -38,10 +40,15 @@ public class LogService {
         eventLog.setRoom(room); // Встановлюємо кімнату
         eventLog.setFloor(floor); // Встановлюємо поверх
         eventLog.setSession(session); // Встановлюємо сесію
-        eventLog.setStartTime(LocalDateTime.now()); // Встановлюємо час початку
+        eventLog.setStartTime(now); // Встановлюємо час початку
 
         return logRepository.save(eventLog);
     }
+
+    public AlarmLog createAlarmLog(){
+        return new AlarmLog();
+    }
+
 
     public List<EventLog> getEventLogsBySensorId(long sensorId){
         return logRepository.findBySensor_SensorId(sensorId);
@@ -53,4 +60,6 @@ public class LogService {
 
         return logRepository.findAll(specification);
     }
+
+
 }

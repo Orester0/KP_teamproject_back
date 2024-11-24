@@ -1,22 +1,33 @@
 package org.example.securitysystem.model.model_controller.observer.listener;
 
 import lombok.Data;
+import org.example.securitysystem.model.entity.security_system.Loggable;
 import org.example.securitysystem.model.entity.security_system.SecurityColleague;
 import org.example.securitysystem.model.entity.security_system.sensors.Sensor;
+import org.example.securitysystem.service.LogService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
+@Component
 public class EventLogger implements SecurityEventListener {
     // LOG TO DATABASE
 
-
+    @Autowired
+    private LogService eventLoggingService;
 
     // список об'єктів з якими щось відбулось
-    public static List<SecurityColleague> list = new ArrayList<>();
+    public static Map<SecurityColleague, Boolean> eventMap = new HashMap<>();
+
 
     public static String buffer = "";
 
@@ -34,7 +45,7 @@ public class EventLogger implements SecurityEventListener {
         } else {
             buffer += "\n";
         }
-        list.add(sensorDetails);
+        eventMap.put(sensorDetails, true);//to do
     }
 
     public String getBuffer() {
@@ -42,14 +53,15 @@ public class EventLogger implements SecurityEventListener {
         return buffer;
     }
 
+    @Async
+    @Scheduled(fixedRate = 5000) // кожні 5 секунд
+    public void logEventsPeriodically() {
+        if (!eventMap.isEmpty()) {
+            eventMap.forEach((key, value) -> {
+                ((Loggable)key).log(eventLoggingService,value);
+            });
 
-    // окремий потік який періодично загружає буфер у базу даних
-    private class DatabaseLogger implements Runnable {
-
-        @Override
-        public void run() {
-
-
+            eventMap.clear();
         }
     }
 }
