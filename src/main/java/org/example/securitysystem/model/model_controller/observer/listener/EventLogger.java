@@ -22,12 +22,12 @@ public class EventLogger implements SecurityEventListener {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
         boolean activated = true;
-        String currentTime = now.format(formatter);
-
+        LocalDateTime time  = LocalDateTime.now();
+        String currentTime = time.format(formatter);
         if (eventType.endsWith("FF")) activated = false;
 
         SensorLogString sensorLogString = new SensorLogString(sensorDetails.getClass().getSimpleName(), activated, currentTime);
-        SensorLog sensorLog = new SensorLog(sensorDetails, activated, currentTime);
+        SensorLog sensorLog = new SensorLog(sensorDetails, activated, time);
         buffer += sensorLogString + "\n";
 
         list.add(sensorLog);
@@ -45,5 +45,5 @@ public class EventLogger implements SecurityEventListener {
 
 
     public record SensorLogString(String sensorDetails, boolean activated, String currentTime) {}
-    public record SensorLog(SecurityColleague sensorDetails, boolean activated, String currentTime) {}
+    public record SensorLog(SecurityColleague sensorDetails, boolean activated, LocalDateTime currentTime) {}
 }

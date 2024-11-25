@@ -23,7 +23,7 @@ public interface ISessionService {
     public Building getBuildingFromSession(String name);
 
 
-    public void updateSession(Session session);
+    public Building updateSession(Session session);
 
     public Optional<Long> getSessionIdByName(String name);
 }
