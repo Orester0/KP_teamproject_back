@@ -65,6 +65,7 @@ public class EventLogger implements SecurityEventListener {
 
 
 
+
     public record SensorLogString(long sensorDetails, boolean activated, String currentTime) {}
     public record SensorLog(SecurityColleague sensorDetails, boolean activated, LocalDateTime currentTime) {}
 }

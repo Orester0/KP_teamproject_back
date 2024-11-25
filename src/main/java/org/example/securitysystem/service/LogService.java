@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 
 @Service
@@ -67,7 +68,7 @@ public class LogService {
         return alarmRepository.save(alarmLog);
     }
 
-    public void createLog(List<EventLogger.SensorLog> logsInfo,Long sessionId){
+    public void createLog(Queue<EventLogger.SensorLog> logsInfo, Long sessionId){
         for(EventLogger.SensorLog log: logsInfo){
             if(log.sensorDetails() instanceof Sensor){
                 createEventLog(((Sensor) log.sensorDetails()).getID(), log.currentTime());
