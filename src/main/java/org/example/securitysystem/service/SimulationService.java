@@ -26,6 +26,7 @@ public class SimulationService {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
     private ExecutorService sensorTriggerExecutor = Executors.newFixedThreadPool(3); // 3 потоки для сенсорів
     private ExecutorService webSocketSenderExecutor = Executors.newSingleThreadExecutor(); // 1 потік для WebSocket
+    private ExecutorService dbtSenderExecutor = Executors.newSingleThreadExecutor();
     private static final int SHUTDOWN_TIMEOUT_SECONDS = 60;
 
     @Autowired
@@ -55,7 +56,17 @@ public class SimulationService {
                 0, 1, TimeUnit.SECONDS
         );
 
+
         context.setWebSocketTask(webSocketTask);
+
+
+        ScheduledFuture<?> dbTask = scheduler.scheduleAtFixedRate(
+                () -> dbSocketUpdates(context),
+                0, 10, TimeUnit.SECONDS
+        );
+
+
+        context.setWebSocketTask(dbTask);
 
         log.info("Simulation started successfully for session: {}", sessionId);
     }
@@ -70,7 +81,7 @@ public class SimulationService {
 
         RobberSimulator simulator = new RobberSimulator(building);
 
-        return new SimulationContext(building, simulator, eventLogger, linker, socketTopic);
+        return new SimulationContext(simulator,eventLogger, socketTopic);
     }
 
     private void runMultiThreadedSimulationCycle(Long sessionId, SimulationContext context) {
@@ -118,6 +129,17 @@ public class SimulationService {
                     webSocketService.sendSimulationEvent(context.getSocketTopic(), log);
                     context.getEventLogger().clearBuffer();
                 }
+            } catch (Exception e) {
+                log.error("Error in WebSocket sender thread: {}", e.getMessage());
+            }
+        });
+    }
+
+    private void dbSocketUpdates(SimulationContext context) {
+        webSocketSenderExecutor.submit(() -> {
+            try {
+                String log = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+                webSocketService.sendSimulationEvent(context.getSocketTopic(), log);
             } catch (Exception e) {
                 log.error("Error in WebSocket sender thread: {}", e.getMessage());
             }
@@ -278,12 +300,11 @@ public class SimulationService {
     }
 
     private static class SimulationContext {
-        private final Building building;
         @Getter
         private final RobberSimulator simulator;
         @Getter
         private final EventLogger eventLogger;
-        private final Linker linker;
+
         @Getter
         private final String socketTopic;
         @Setter
@@ -296,12 +317,10 @@ public class SimulationService {
         @Getter
         private volatile boolean paused;
 
-        public SimulationContext(Building building, RobberSimulator simulator,
-                                 EventLogger eventLogger, Linker linker, String socketTopic) {
-            this.building = building;
+        public SimulationContext(RobberSimulator simulator,
+                                 EventLogger eventLogger, String socketTopic) {
             this.simulator = simulator;
             this.eventLogger = eventLogger;
-            this.linker = linker;
             this.socketTopic = socketTopic;
             this.paused = false;
         }
