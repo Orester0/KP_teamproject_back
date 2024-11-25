@@ -12,9 +12,9 @@ import java.util.List;
 @Data
 public class EventLogger implements SecurityEventListener {
 
-    // тутво зберігається об'єкт, зберігати тово
-    public static List<SensorLog> objectList = new ArrayList<>();
-    public static List<SensorLogString> listString = new ArrayList<>();
+
+    public static List<Object> objectList = new ArrayList<>();
+    public static List<Object> objectList2 = new ArrayList<>();
 
     public static String buffer = "";
 
@@ -43,15 +43,24 @@ public class EventLogger implements SecurityEventListener {
 
         // Додаємо до списку Object
         objectList.add(sensorLog);
+        objectList2.add(sensorLog);
     }
 
 
-    public String getBuffer() {
+    public synchronized String getBuffer() {
         return buffer;
     }
 
-    public void clearBuffer() {
+    public synchronized void clearBuffer() {
         buffer = "";
+    }
+
+    public synchronized List<Object> getObjectList() {
+        return objectList;
+    }
+
+    public synchronized void clearObjectList() {
+        objectList.clear();
     }
 
 
