@@ -5,6 +5,7 @@ import org.example.securitysystem.model.dto.BuildingRequest;
 import org.example.securitysystem.model.dto.SimulationResponse;
 import org.example.securitysystem.model.entity.Session;
 import org.example.securitysystem.model.entity.building.Building;
+import org.example.securitysystem.model.entity.building.Floor;
 import org.example.securitysystem.service.SessionService;
 import org.example.securitysystem.service.SimulationService;
 import org.example.securitysystem.service.WebSocketService;
@@ -35,16 +36,25 @@ public class BuildingController {
     public ResponseEntity<String> createBuilding(@RequestBody BuildingRequest request) {
         try {
             var session = sessionService.getSession(request.getSessionId());
+            System.out.println(gson.toJson(session));
             if (session == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Session not found");
             }
             if (session.getBuilding() != null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Session already has a building associated.");
             }
-
+            System.out.println("BEFORE");
             Building building = new Building(request.getHeightInFloors(), request.getFloorArea());
             session.setBuilding(building);
+            System.out.println("BEFORE2");
             sessionService.updateSession(session);
+
+            System.out.println(gson.toJson(session) + "session");
+
+            var a = sessionService.getSession(session.getId()) ;
+
+
+            System.out.println(gson.toJson(a) + "DB");
             return ResponseEntity.ok("Building created successfully with " + request.getHeightInFloors() +
                     " floors and floor area of " + request.getFloorArea() + " sqm.");
         }
@@ -57,6 +67,7 @@ public class BuildingController {
     public ResponseEntity<String> addDefaultFloor(@RequestParam Long sessionId) {
         try {
             var session = sessionService.getSession(sessionId);
+            System.out.println(gson.toJson(session));
             Building building = getBuildingFromSession(session);
             if (building.isFinalized()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot modify finalized building.");
@@ -116,16 +127,20 @@ public class BuildingController {
         try {
             var session = sessionService.getSession(sessionId);
             Building building = getBuildingFromSession(session);
+
+
             if (building.isFinalized()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Building is already finalized.");
             }
             building.finalizeBuilding();
-            sessionService.updateSession(session);
 
 
-            // get full building from database with IDs
-            // from some service
+            building = sessionService.updateSession(session);
 
+            for(Floor floor : building.getFloors())
+            {
+                System.out.println(floor.getSensors());
+            }
             return ResponseEntity.ok("Building finalized successfully.");
         } catch (BuildingException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(handleError(e));
@@ -139,6 +154,7 @@ public class BuildingController {
     public ResponseEntity<SimulationResponse> startSimulation(@RequestParam Long sessionId) {
         try {
             var session = sessionService.getSession(sessionId);
+            System.out.println(gson.toJson(session));
             Building building = getBuildingFromSession(session);
 
             if (!building.isFinalized()) {

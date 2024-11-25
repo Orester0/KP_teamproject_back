@@ -1,6 +1,7 @@
 package org.example.securitysystem.model.entity.building;
 
 import com.google.gson.annotations.Expose;
+import lombok.Data;
 import lombok.Getter;
 import org.example.securitysystem.exception.BuildingException;
 import org.example.securitysystem.model.entity.room.*;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Getter
+@Data
 public class Building implements Serializable {
     @Expose
     private List<Floor> floors = new ArrayList<>();
@@ -31,7 +32,6 @@ public class Building implements Serializable {
         this.floorArea = floorArea;
         this.heightInFloors = heightInFloors;
     }
-
     public void finalizeBuilding() throws BuildingException
     {
         if (floors.size() != heightInFloors)
@@ -51,8 +51,6 @@ public class Building implements Serializable {
             throw new BuildingException("Number of floors does not match the expected height");
         }
 
-        int sensorNumber = 1;
-        int roomNumber = 1;
         int floorNumber = 1;
 
         for (Floor floor : floors)
@@ -60,12 +58,8 @@ public class Building implements Serializable {
             floor.setFloorNumber(floorNumber++);
             for (Room room : floor.getRooms())
             {
-                room.setID(String.valueOf(roomNumber++));
                 room.calculateSensor();
-                for(Sensor sensor : room.getSensors())
-                {
-                    sensor.setID((sensorNumber++));
-                }
+            //
             }
         }
     }

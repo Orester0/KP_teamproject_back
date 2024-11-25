@@ -1,6 +1,7 @@
 package org.example.securitysystem.service;
 
 import jakarta.annotation.PreDestroy;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +71,8 @@ public class SimulationService {
         List<Future<?>> sensorTasks = new ArrayList<>();
 
         try {
+            var a = context.getBuilding().getFloors().get(0).getSensors();
+            System.out.println(a);
             // Запускаємо 4 паралельні задачі
             for (int i = 0; i < 4; i++) {
                 Future<?> task = sensorTriggerExecutor.submit(() -> {
@@ -190,6 +193,7 @@ public class SimulationService {
         }
     }
 
+    @Data
     private static class SimulationContext {
         private final Building building;
         @Getter

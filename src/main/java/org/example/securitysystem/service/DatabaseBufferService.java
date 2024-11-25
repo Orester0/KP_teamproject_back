@@ -1,6 +1,6 @@
 package org.example.securitysystem.service;
 
-package org.example.securitysystem.service;
+
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.securitysystem.model.model_controller.observer.listener.EventLogger;
@@ -57,16 +57,16 @@ public class DatabaseBufferService {
 
             int batchSize = 0;
 List<EventLogger.SensorLog> logs = new ArrayList<>();
-            // Збираємо всі доступні логи з буфера
-            while ((log = logBuffer.poll()) != null) {
-                logs.add(log);
-                batchSize++;
-            }
-
-            if (batchSize > 0) {
-                databaseService.createLog (logs);
-                log.debug("Flushed {} log entries to database", batchSize);
-            }
+//            // Збираємо всі доступні логи з буфера
+//            while ((log = logBuffer.poll()) != null) {
+//                logs.add(log);
+//                batchSize++;
+//            }
+//
+//            if (batchSize > 0) {
+//                databaseService.createLog (logs);
+//                log.debug("Flushed {} log entries to database", batchSize);
+//            }
         } catch (Exception e) {
             log.error("Error flushing buffer to database: {}", e.getMessage(), e);
         }

@@ -27,8 +27,8 @@ public class SessionDB {
     @Column(name = "height_in_floors")
     private int heightInFloors;
 
-    @Column(name = "is_finalized", nullable = false)
-    private boolean isFinalized = false;
+    @Column(name = "is_finalized")
+    private boolean isFinalized ;
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<FloorDB> floors = new ArrayList<>();
