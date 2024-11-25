@@ -26,18 +26,23 @@ public class RoomFactory {
 
     private static Set<Class<? extends Room>> findSubclasses(Class<Room> superClass) {
         Reflections reflections = new Reflections("org.example.securitysystem.model.entity.room");
+
         return reflections.getSubTypesOf(superClass);
     }
 
     public static Room createRoom(String roomType) throws Exception {
+
         Class<? extends Room> roomClass = roomRegistry.get(roomType);
+
         if (roomClass != null) {
             try {
                 return roomClass.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
+
                 throw new Exception("Error creating room of type " + roomType, e);
             }
         } else {
+
             throw new Exception("Unknown room type: " + roomType);
         }
     }

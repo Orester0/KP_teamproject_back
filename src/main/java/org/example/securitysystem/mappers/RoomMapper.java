@@ -5,10 +5,13 @@ import org.example.securitysystem.model.models_db.RoomDB;
 
 public class RoomMapper {
     public static Room RoomDbToRoom(RoomDB room) throws Exception{
+
         Room newRoom = RoomFactory.createRoom(room.getType());
-        room.setType(room.getType());
-        room.setArea(room.getArea());
-        room.setAmountOfPorts(room.getAmountOfPorts());
+      newRoom.setArea(room.getArea());
+      newRoom.setAmountOfPorts(room.getAmountOfPorts());
+      newRoom.setID(room.getRoomId());
+      newRoom.setRoomType(room.getType());
+
         return newRoom;
     }
 

@@ -27,21 +27,33 @@ public class SessionMapper {
         session.setId(sessionDB.getSessionId());
 
         Building building = new Building(sessionDB.getHeightInFloors(), sessionDB.getFloorArea());
+
         for (FloorDB floorDB : sessionDB.getFloors()) {
+
             Floor newFloor = FloorMapper.FloorDBToFloor(floorDB);
 
             for (RoomDB roomDB : floorDB.getRooms()) {
 
                 Room newRoom = RoomMapper.RoomDbToRoom(roomDB);
+
                 for(SensorDB sensorDb: roomDB.getSensors()){
                     Sensor newSensor = SensorMapper.SensorDBToSensor(sensorDb);
+
                     newRoom.addSensor(newSensor);
+
                 }
                 newFloor.addRoom(newRoom);
+
             }
             building.addFloor(newFloor);
+
         }
-        session.setBuilding(new Building(sessionDB.getHeightInFloors(), sessionDB.getFloorArea()));
+
+        if(sessionDB.getHeightInFloors()!=0){
+            session.setBuilding(building);
+            session.getBuilding().setFinalized(sessionDB.isFinalized());
+        }
+
 
         return session;
     }
@@ -99,6 +111,7 @@ public class SessionMapper {
                     floorDB.setSession(sessionDB); // Зв'язуємо поверх із сесією
                     sessionDB.getFloors().add(floorDB);
                 }
+                sessionDB.setFinalized(session.getBuilding().isFinalized());
             }
         } else {
             System.out.println("Building is null.");

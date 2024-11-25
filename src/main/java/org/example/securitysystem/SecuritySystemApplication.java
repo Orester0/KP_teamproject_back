@@ -30,29 +30,7 @@ public class SecuritySystemApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("Hello World!");
 
-        Gson gson = new Gson();
-
-        Building asd = new Building(3, 99);
-
-        asd.buildOfficeFloor();
-        asd.buildDefaultFloor();
-        asd.buildHostelFloor();
-
-        asd.finalizeBuilding();
-
-        for (Floor floor : asd.getFloors()) {
-            System.out.println(floor.getRooms().size());
-            for (Room room : floor.getRooms()) {
-                System.out.println(gson.toJson(room));
-            }
-        }
-
-       List< EventLog > e = logService.getEventLogs(null,null,null,"Microphone");
-      for(EventLog ev: e){
-          System.out.println(ev.getSensor().getType());
-      }
 //        // Використання sessionService
 //       Session session =  sessionService.createSession("new4") ;
 //        session.setBuilding(asd);

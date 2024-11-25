@@ -2,6 +2,8 @@ package org.example.securitysystem.model.model_controller.observer.listener;
 
 import lombok.Data;
 import org.example.securitysystem.model.entity.security_system.SecurityColleague;
+import org.example.securitysystem.model.entity.security_system.sensors.Sensor;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -26,7 +28,15 @@ public class EventLogger implements SecurityEventListener {
         String currentTime = time.format(formatter);
         if (eventType.endsWith("FF")) activated = false;
 
-        SensorLogString sensorLogString = new SensorLogString(sensorDetails.getClass().getSimpleName(), activated, currentTime);
+        SensorLogString sensorLogString;
+
+        sensorLogString = new SensorLogString(333, activated, currentTime);
+
+        if(sensorDetails instanceof Sensor){
+            sensorLogString = new SensorLogString(((Sensor) sensorDetails).getID(), activated, currentTime);
+
+        }
+
         SensorLog sensorLog = new SensorLog(sensorDetails, activated, time);
         buffer += sensorLogString + "\n";
 
@@ -44,6 +54,6 @@ public class EventLogger implements SecurityEventListener {
 
 
 
-    public record SensorLogString(String sensorDetails, boolean activated, String currentTime) {}
+    public record SensorLogString(long sensorDetails, boolean activated, String currentTime) {}
     public record SensorLog(SecurityColleague sensorDetails, boolean activated, LocalDateTime currentTime) {}
 }

@@ -47,7 +47,7 @@ public class SessionService implements ISessionService {
         try {
             return SessionMapper.mapToSession(sessionDB);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to map SessionDB to Session", e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -95,7 +95,8 @@ public class SessionService implements ISessionService {
         SessionDB sessionDB = sessionRepository.findById(session.getId())
                 .orElseThrow(() -> new RuntimeException("Session not found."));
         try{
-        SessionDB newSession = SessionMapper.mapToSessionDB(session);
+            SessionDB newSession = SessionMapper.mapToSessionDB(session);
+            System.out.println(newSession.getFloors().toString());
             sessionRepository.save(newSession);
             return getBuildingFromSession(session.getName());
         }

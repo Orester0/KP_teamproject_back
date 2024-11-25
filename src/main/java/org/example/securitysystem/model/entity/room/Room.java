@@ -3,6 +3,7 @@ package org.example.securitysystem.model.entity.room;
 import com.google.gson.annotations.Expose;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.securitysystem.model.entity.security_system.sensors.*;
 
@@ -13,13 +14,14 @@ import java.util.List;
 @Data
 @Getter
 @Setter
+@NoArgsConstructor
 public abstract class Room implements Serializable {
     @Expose
     protected double area;
     @Expose
     protected int amountOfPorts;
     @Expose
-    protected String ID;
+    protected long ID;
     @Expose
     protected String RoomType;
 

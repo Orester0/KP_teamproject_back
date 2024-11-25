@@ -6,7 +6,10 @@ import org.example.securitysystem.model.models_db.SensorDB;
 public class SensorMapper {
 
     public static Sensor SensorDBToSensor(SensorDB sensorDB) throws Exception{
-        return  SensorFactory.createSensor(sensorDB.getType());
+        Sensor sensor  = SensorFactory.createSensor(sensorDB.getType());
+        sensor.setID(sensorDB.getSensorId());
+        sensor.setSensorType(sensorDB.getType());
+        return  sensor;
     }
 
     public static SensorDB SensorToSensorDB(Sensor sensor) {
