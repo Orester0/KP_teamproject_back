@@ -93,7 +93,7 @@ public class SimulationService {
             // Чекаємо завершення всіх задач з таймаутом
             for (Future<?> task : sensorTasks) {
                 try {
-                    task.get(5, TimeUnit.SECONDS);
+                    task.get(8, TimeUnit.SECONDS);
                 } catch (TimeoutException e) {
                     log.warn("Sensor trigger task timed out for session: {}", sessionId);
                     task.cancel(true);
@@ -106,59 +106,55 @@ public class SimulationService {
         }
     }
 
-    public boolean pauseSimulation(Long sessionId) {
+    public void pauseSimulation(Long sessionId) {
         if (sessionId == null) {
             log.warn("Cannot pause simulation: session ID is null");
-            return false;
+            return;
         }
 
         SimulationContext context = activeSimulations.get(sessionId);
         if (context == null) {
             log.warn("Cannot pause simulation: no active simulation found for session {}", sessionId);
-            return false;
+            return;
         }
 
         if (context.isPaused()) {
             log.info("Simulation for session {} is already paused", sessionId);
-            return true;
+            return;
         }
 
         try {
             context.setPaused(true);
             webSocketService.sendSimulationEvent(context.getSocketTopic(), "Simulation paused");
             log.info("Simulation paused successfully for session: {}", sessionId);
-            return true;
         } catch (Exception e) {
             log.error("Error while pausing simulation for session {}: {}", sessionId, e.getMessage(), e);
-            return false;
         }
     }
 
-    public boolean resumeSimulation(Long sessionId) {
+    public void resumeSimulation(Long sessionId) {
         if (sessionId == null) {
             log.warn("Cannot resume simulation: session ID is null");
-            return false;
+            return;
         }
 
         SimulationContext context = activeSimulations.get(sessionId);
         if (context == null) {
             log.warn("Cannot resume simulation: no active simulation found for session {}", sessionId);
-            return false;
+            return;
         }
 
         if (!context.isPaused()) {
             log.info("Simulation for session {} is already running", sessionId);
-            return true;
+            return;
         }
 
         try {
             context.setPaused(false);
             webSocketService.sendSimulationEvent(context.getSocketTopic(), "Simulation resumed");
             log.info("Simulation resumed successfully for session: {}", sessionId);
-            return true;
         } catch (Exception e) {
             log.error("Error while resuming simulation for session {}: {}", sessionId, e.getMessage(), e);
-            return false;
         }
     }
 
