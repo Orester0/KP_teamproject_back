@@ -1,5 +1,6 @@
 package org.example.securitysystem.controller;
 import com.google.gson.Gson;
+import org.example.securitysystem.exception.BuildingException;
 import org.example.securitysystem.model.dto.BuildingRequest;
 import org.example.securitysystem.model.dto.SimulationResponse;
 import org.example.securitysystem.model.entity.Session;
@@ -46,8 +47,9 @@ public class BuildingController {
             sessionService.updateSession(session);
             return ResponseEntity.ok("Building created successfully with " + request.getHeightInFloors() +
                     " floors and floor area of " + request.getFloorArea() + " sqm.");
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(handleError(e));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(handleError(e));
         }
     }
 
@@ -62,8 +64,12 @@ public class BuildingController {
             building.buildDefaultFloor();
             sessionService.updateSession(session);
             return ResponseEntity.ok("Default floor added successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(handleError(e));
+        }
+        catch (BuildingException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(handleError(e));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(handleError(e));
         }
     }
 
@@ -78,8 +84,11 @@ public class BuildingController {
             building.buildOfficeFloor();
             sessionService.updateSession(session);
             return ResponseEntity.ok("Office floor added successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(handleError(e));
+        } catch (BuildingException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(handleError(e));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(handleError(e));
         }
     }
 
@@ -94,8 +103,11 @@ public class BuildingController {
             building.buildHostelFloor();
             sessionService.updateSession(session);
             return ResponseEntity.ok("Hostel floor added successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(handleError(e));
+        } catch (BuildingException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(handleError(e));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(handleError(e));
         }
     }
 
@@ -115,8 +127,11 @@ public class BuildingController {
             // from some service
 
             return ResponseEntity.ok("Building finalized successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(handleError(e));
+        } catch (BuildingException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(handleError(e));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(handleError(e));
         }
     }
 
@@ -135,10 +150,12 @@ public class BuildingController {
             simulationService.startSimulation(sessionId, building, socketTopic);
 
             return ResponseEntity.ok(new SimulationResponse(socketTopic, "Simulation started successfully"));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body(new SimulationResponse(null, "Error: " + e.getMessage()));
         }
+
     }
 
 
@@ -150,7 +167,9 @@ public class BuildingController {
 
             simulationService.stopSimulation(sessionId);
             return ResponseEntity.ok(new SimulationResponse(null, "Simulation stopped successfully"));
-        } catch (Exception e) {
+        }
+
+        catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body(new SimulationResponse(null, "Error: " + e.getMessage()));
         }
@@ -164,7 +183,8 @@ public class BuildingController {
 
             simulationService.pauseSimulation(sessionId);
             return ResponseEntity.ok(new SimulationResponse(null, "Simulation paused successfully"));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body(new SimulationResponse(null, "Error: " + e.getMessage()));
         }
@@ -180,7 +200,8 @@ public class BuildingController {
 
             simulationService.resumeSimulation(sessionId);
             return ResponseEntity.ok(new SimulationResponse(null, "Simulation resumed successfully"));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body(new SimulationResponse(null, "Error: " + e.getMessage()));
         }
@@ -197,8 +218,10 @@ public class BuildingController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Building is not finalized");
             }
             return ResponseEntity.ok(gson.toJson(building));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -213,8 +236,12 @@ public class BuildingController {
             building.removeFloor(floorId);
             sessionService.updateSession(session);
             return ResponseEntity.ok("Floor removed successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(handleError(e));
+        }
+        catch (BuildingException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(handleError(e));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(handleError(e));
         }
     }
 
