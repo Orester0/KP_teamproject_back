@@ -95,7 +95,7 @@ public class SimulationService {
                 try {
                     task.get(8, TimeUnit.SECONDS);
                 } catch (TimeoutException e) {
-                    log.warn("Sensor trigger task timed out for session: {}", sessionId);
+                    log.warn("Sensor trigger task timed out for thread: {}", Thread.currentThread().getName());
                     task.cancel(true);
                 } catch (Exception e) {
                     log.error("Error waiting for sensor trigger task: {}", e.getMessage());

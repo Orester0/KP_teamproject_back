@@ -17,12 +17,8 @@ public class SecurityMediator implements SecuritySystemMediator {
         switch (event) {
             case "MotionSensor":
                 sirens = colleagues.get("Siren");
-                speakers = colleagues.get("Speakers");
                 for (SecurityColleague siren : sirens) {
                     ((AlarmSystem) siren).activateAlarm();
-                }
-                for (SecurityColleague speaker : speakers) {
-                    ((AlarmSystem) speaker).activateAlarm();
                 }
                 break;
 
@@ -39,13 +35,9 @@ public class SecurityMediator implements SecuritySystemMediator {
                 }
                 break;
             case "TemperatureSensor":
-                sirens = colleagues.get("Siren");
                 speakers = colleagues.get("Speakers");
                 for (SecurityColleague speaker : speakers) {
                     ((AlarmSystem) speaker).activateAlarm();
-                }
-                for (SecurityColleague siren : sirens) {
-                    ((AlarmSystem) siren).activateAlarm();
                 }
                 break;
             default:
