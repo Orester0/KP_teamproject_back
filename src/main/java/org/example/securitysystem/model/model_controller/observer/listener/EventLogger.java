@@ -42,14 +42,7 @@ public class EventLogger implements SecurityEventListener {
         buffer = "";
     }
 
-    // окремий потік який періодично загружає буфер у базу даних
-    private class DatabaseLogger implements Runnable {
 
-        @Override
-        public void run() {
-
-        }
-    }
 
     public record SensorLogString(String sensorDetails, boolean activated, String currentTime) {}
     public record SensorLog(SecurityColleague sensorDetails, boolean activated, String currentTime) {}

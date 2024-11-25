@@ -13,6 +13,8 @@ import org.example.securitysystem.model.model_controller.robber_simulator.Robber
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
@@ -20,9 +22,10 @@ import java.util.concurrent.*;
 @Service
 public class SimulationService {
     private final WebSocketService webSocketService;
-
     private final Map<Long, SimulationContext> activeSimulations = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
+    private ExecutorService sensorTriggerExecutor = Executors.newFixedThreadPool(4);
+    private static final int SHUTDOWN_TIMEOUT_SECONDS = 60;
 
     @Autowired
     public SimulationService(WebSocketService webSocketService) {
@@ -32,16 +35,13 @@ public class SimulationService {
     public void startSimulation(Long sessionId, Building building, String socketTopic) {
         log.info("Starting simulation for session: {}", sessionId);
 
-        // Stop any existing simulation for this session
         stopSimulation(sessionId);
 
-        // Create new simulation context
         SimulationContext context = createSimulationContext(building, socketTopic);
         activeSimulations.put(sessionId, context);
 
-        // Schedule simulation updates
         ScheduledFuture<?> simulationTask = scheduler.scheduleAtFixedRate(
-                () -> runSimulationCycle(sessionId, context),
+                () -> runMultiThreadedSimulationCycle(sessionId, context),
                 0, 1, TimeUnit.SECONDS
         );
 
@@ -50,8 +50,6 @@ public class SimulationService {
     }
 
     private SimulationContext createSimulationContext(Building building, String socketTopic) {
-        // Create EventLogger
-
         SecurityMediator securityController = new SecurityMediator();
         SecurityEventManager securityEventManager = new SecurityEventManager();
         EventLogger eventLogger = new EventLogger();
@@ -59,24 +57,48 @@ public class SimulationService {
         Linker linker = new Linker(building, securityController, securityEventManager, eventLogger);
         linker.link();
 
-        // Create Linker and initialize security system components
-
-        // Create RobberSimulator with the linked building
         RobberSimulator simulator = new RobberSimulator(building);
 
         return new SimulationContext(building, simulator, eventLogger, linker, socketTopic);
     }
 
-    private void runSimulationCycle(Long sessionId, SimulationContext context) {
-        try {
-            if (!context.isPaused()) {
-                context.getSimulator().triggerRandomSensor();
-                String log = context.getEventLogger().getBuffer();
+    private void runMultiThreadedSimulationCycle(Long sessionId, SimulationContext context) {
+        if (context.isPaused()) {
+            return;
+        }
 
-                //databaseService.writeBuffer();
-                if (!log.isEmpty()) {
-                    webSocketService.sendSimulationEvent(context.getSocketTopic(), log);
-                    context.getEventLogger().clearBuffer();
+        List<Future<?>> sensorTasks = new ArrayList<>();
+
+        try {
+            // Запускаємо 4 паралельні задачі
+            for (int i = 0; i < 4; i++) {
+                Future<?> task = sensorTriggerExecutor.submit(() -> {
+                    try {
+                        context.getSimulator().triggerRandomSensor();
+
+                        String log = context.getEventLogger().getBuffer();
+                        if (!log.isEmpty()) {
+                            String threadInfo = String.format("[Thread: %s] ", Thread.currentThread().getName());
+                            log = threadInfo + log;
+                            webSocketService.sendSimulationEvent(context.getSocketTopic(), log);
+                            context.getEventLogger().clearBuffer();
+                        }
+                    } catch (Exception e) {
+                        log.error("Error in sensor trigger thread: {}", e.getMessage());
+                    }
+                });
+                sensorTasks.add(task);
+            }
+
+            // Чекаємо завершення всіх задач з таймаутом
+            for (Future<?> task : sensorTasks) {
+                try {
+                    task.get(5, TimeUnit.SECONDS);
+                } catch (TimeoutException e) {
+                    log.warn("Sensor trigger task timed out for session: {}", sessionId);
+                    task.cancel(true);
+                } catch (Exception e) {
+                    log.error("Error waiting for sensor trigger task: {}", e.getMessage());
                 }
             }
         } catch (Exception e) {
@@ -84,19 +106,59 @@ public class SimulationService {
         }
     }
 
-    public void pauseSimulation(Long sessionId) {
+    public boolean pauseSimulation(Long sessionId) {
+        if (sessionId == null) {
+            log.warn("Cannot pause simulation: session ID is null");
+            return false;
+        }
+
         SimulationContext context = activeSimulations.get(sessionId);
-        if (context != null) {
+        if (context == null) {
+            log.warn("Cannot pause simulation: no active simulation found for session {}", sessionId);
+            return false;
+        }
+
+        if (context.isPaused()) {
+            log.info("Simulation for session {} is already paused", sessionId);
+            return true;
+        }
+
+        try {
             context.setPaused(true);
-            log.info("Simulation paused for session: {}", sessionId);
+            webSocketService.sendSimulationEvent(context.getSocketTopic(), "Simulation paused");
+            log.info("Simulation paused successfully for session: {}", sessionId);
+            return true;
+        } catch (Exception e) {
+            log.error("Error while pausing simulation for session {}: {}", sessionId, e.getMessage(), e);
+            return false;
         }
     }
 
-    public void resumeSimulation(Long sessionId) {
+    public boolean resumeSimulation(Long sessionId) {
+        if (sessionId == null) {
+            log.warn("Cannot resume simulation: session ID is null");
+            return false;
+        }
+
         SimulationContext context = activeSimulations.get(sessionId);
-        if (context != null) {
+        if (context == null) {
+            log.warn("Cannot resume simulation: no active simulation found for session {}", sessionId);
+            return false;
+        }
+
+        if (!context.isPaused()) {
+            log.info("Simulation for session {} is already running", sessionId);
+            return true;
+        }
+
+        try {
             context.setPaused(false);
-            log.info("Simulation resumed for session: {}", sessionId);
+            webSocketService.sendSimulationEvent(context.getSocketTopic(), "Simulation resumed");
+            log.info("Simulation resumed successfully for session: {}", sessionId);
+            return true;
+        } catch (Exception e) {
+            log.error("Error while resuming simulation for session {}: {}", sessionId, e.getMessage(), e);
+            return false;
         }
     }
 
@@ -108,19 +170,32 @@ public class SimulationService {
     public void stopSimulation(Long sessionId) {
         SimulationContext context = activeSimulations.remove(sessionId);
         if (context != null) {
-            ScheduledFuture<?> task = context.getSimulationTask();
-            if (task != null && !task.isCancelled()) {
-                task.cancel(true);
+            try {
+                // Відміняємо основну задачу симуляції
+                ScheduledFuture<?> task = context.getSimulationTask();
+                if (task != null && !task.isCancelled()) {
+                    task.cancel(true);
+                }
+
+                // Чекаємо завершення всіх поточних тригерів сенсорів
+                sensorTriggerExecutor.shutdown();
+                if (!sensorTriggerExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    sensorTriggerExecutor.shutdownNow();
+                }
+
+                // Створюємо новий пул для наступних симуляцій
+                sensorTriggerExecutor = Executors.newFixedThreadPool(4);
+
+                log.info("Simulation stopped for session: {}", sessionId);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.error("Interrupted while stopping simulation for session: {}", sessionId);
             }
-            context.getSimulator().stopSimulation();
-            log.info("Simulation stopped for session: {}", sessionId);
         }
     }
 
-    // Helper class to maintain simulation state and components
     private static class SimulationContext {
         private final Building building;
-        // Getters and setters
         @Getter
         private final RobberSimulator simulator;
         @Getter
@@ -144,21 +219,43 @@ public class SimulationService {
             this.socketTopic = socketTopic;
             this.paused = false;
         }
-
     }
 
-    // Clean up method to be called when application shuts down
     @PreDestroy
     public void cleanup() {
+        log.info("Starting SimulationService cleanup...");
+
+        // Зупиняємо всі активні симуляції
         activeSimulations.keySet().forEach(this::stopSimulation);
+
+        // Зупиняємо scheduler
         scheduler.shutdown();
         try {
-            if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
+            if (!scheduler.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                 scheduler.shutdownNow();
+                if (!scheduler.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                    log.error("Scheduler did not terminate");
+                }
             }
         } catch (InterruptedException e) {
             scheduler.shutdownNow();
             Thread.currentThread().interrupt();
         }
+
+        // Зупиняємо executor сенсорів
+        sensorTriggerExecutor.shutdown();
+        try {
+            if (!sensorTriggerExecutor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                sensorTriggerExecutor.shutdownNow();
+                if (!sensorTriggerExecutor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                    log.error("Sensor trigger executor did not terminate");
+                }
+            }
+        } catch (InterruptedException e) {
+            sensorTriggerExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+
+        log.info("SimulationService cleanup completed");
     }
 }
