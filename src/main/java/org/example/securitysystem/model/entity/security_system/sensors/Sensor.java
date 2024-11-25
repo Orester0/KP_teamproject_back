@@ -2,7 +2,6 @@ package org.example.securitysystem.model.entity.security_system.sensors;
 
 import com.google.gson.annotations.Expose;
 import lombok.Data;
-import org.example.securitysystem.model.entity.security_system.Loggable;
 import org.example.securitysystem.model.entity.security_system.SecurityColleague;
 import org.example.securitysystem.model.model_controller.mediator.SecuritySystemMediator;
 import org.example.securitysystem.model.model_controller.observer.SecurityEventManager;
@@ -12,7 +11,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-public abstract class Sensor implements SecurityColleague, Serializable, Loggable {
+public abstract class Sensor implements SecurityColleague, Serializable {
     protected SecuritySystemMediator securityMediator;
     protected SecurityEventManager securityEventManager;
     @Expose
@@ -32,10 +31,7 @@ public abstract class Sensor implements SecurityColleague, Serializable, Loggabl
 
     public abstract  void detect() throws Exception;
 
-    @Override
-    public void log(LogService logService,boolean status){
-        logService.createEventLog(ID, LocalDateTime.now());
-    }
+
 
     public String getType() {
         return this.getType();

@@ -91,14 +91,15 @@ public class SessionService implements ISessionService {
     }
     @Transactional
     @Override
-    public void updateSession(Session session) {
+    public Building updateSession(Session session) {
         SessionDB sessionDB = sessionRepository.findById(session.getId())
                 .orElseThrow(() -> new RuntimeException("Session not found."));
         try{
         SessionDB newSession = SessionMapper.mapToSessionDB(session);
             sessionRepository.save(newSession);
+            return getBuildingFromSession(session.getName());
         }
-        //return building
+
         catch (Exception e) {
         throw new RuntimeException("Failed to map SessionDB to Session", e);
     }
@@ -110,11 +111,4 @@ public class SessionService implements ISessionService {
     }
 
 
-    public void updateSession(SessionDB session) {
-        sessionRepository.save(session);
-    }
-
-//    public Optional<Long> getSessionIdByName(String name) {
-//        return sessionRepository.findByName(name).map(SessionDB::getId);
-//    }
 }
