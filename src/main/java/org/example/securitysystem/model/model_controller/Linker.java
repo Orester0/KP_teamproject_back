@@ -41,10 +41,4 @@ public class Linker {
             }
         }
     }
-
-    public String getBuffer() {
-        return ((EventLogger)el).getBuffer();
-    }
-
-
 }
