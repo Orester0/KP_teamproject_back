@@ -20,13 +20,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class DatabaseBufferService {
     private final Queue<EventLogger.SensorLog> logBuffer = new ConcurrentLinkedQueue<>();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private final LogService databaseService; // Припускаємо, що у вас є такий сервіс
+    private final LogService logService;
     private static final int FLUSH_INTERVAL_SECONDS = 5;
-    private static final int BUFFER_SIZE_THRESHOLD = 100;
+    private static final int BUFFER_SIZE_THRESHOLD = 5;
+    private final  long sessionId;
 
     @Autowired
-    public DatabaseBufferService(LogService databaseService) {
-        this.databaseService = databaseService;
+    public DatabaseBufferService(LogService logService) {
+        this.logService = logService;
+
         initializeBufferFlushing();
     }
 
@@ -39,34 +41,23 @@ public class DatabaseBufferService {
         );
     }
 
-    public void addToBuffer(EventLogger.SensorLog log) {
+    public void addToBuffer(EventLogger.SensorLog log,long sessionId) {
         logBuffer.offer(log);
 
-        // Якщо буфер досяг порогового значення, спробуємо його очистити
         if (logBuffer.size() >= BUFFER_SIZE_THRESHOLD) {
-            flushBuffer();
+            flushBuffer(sessionId);
         }
     }
 
-    private void flushBuffer() {
+    private void flushBuffer(long sessionId) {
         try {
             if (logBuffer.isEmpty()) {
                 return;
             }
 
+            logService.createLog(logBuffer,sessionId);
 
-            int batchSize = 0;
-List<EventLogger.SensorLog> logs = new ArrayList<>();
-//            // Збираємо всі доступні логи з буфера
-//            while ((log = logBuffer.poll()) != null) {
-//                logs.add(log);
-//                batchSize++;
-//            }
-//
-//            if (batchSize > 0) {
-//                databaseService.createLog (logs);
-//                log.debug("Flushed {} log entries to database", batchSize);
-//            }
+
         } catch (Exception e) {
             log.error("Error flushing buffer to database: {}", e.getMessage(), e);
         }
