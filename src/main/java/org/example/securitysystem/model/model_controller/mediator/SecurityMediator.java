@@ -15,33 +15,25 @@ public class SecurityMediator implements SecuritySystemMediator {
     public void notify(SecurityColleague sender, String event) throws Exception {
         List<SecurityColleague> sirens, speakers;
         switch (event) {
-            case "MotionSensor":
+            case "MotionSensor", "Camera" -> {
                 sirens = colleagues.get("Siren");
                 for (SecurityColleague siren : sirens) {
                     ((AlarmSystem) siren).activateAlarm();
                 }
-                break;
-
-            case "Camera":
-                sirens = colleagues.get("Siren");
-                for (SecurityColleague siren : sirens) {
-                    ((AlarmSystem) siren).activateAlarm();
-                }
-                break;
-            case "Microphone":
+            }
+            case "Microphone" -> {
                 speakers = colleagues.get("Speakers");
                 for (SecurityColleague speaker : speakers) {
                     ((AlarmSystem) speaker).activateAlarm();
                 }
-                break;
-            case "TemperatureSensor":
-                speakers = colleagues.get("Speakers");
+            }
+            case "TemperatureSensor" -> {
+                speakers = colleagues.get("FireExtinguishing");
                 for (SecurityColleague speaker : speakers) {
                     ((AlarmSystem) speaker).activateAlarm();
                 }
-                break;
-            default:
-                throw new Exception("Unknown Event");
+            }
+            default -> throw new Exception("Unknown Event");
         }
     }
 

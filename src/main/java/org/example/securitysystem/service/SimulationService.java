@@ -24,7 +24,8 @@ public class SimulationService {
     private final WebSocketService webSocketService;
     private final Map<Long, SimulationContext> activeSimulations = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
-    private ExecutorService sensorTriggerExecutor = Executors.newFixedThreadPool(4);
+    private ExecutorService sensorTriggerExecutor = Executors.newFixedThreadPool(3); // 3 потоки для сенсорів
+    private ExecutorService webSocketSenderExecutor = Executors.newSingleThreadExecutor(); // 1 потік для WebSocket
     private static final int SHUTDOWN_TIMEOUT_SECONDS = 60;
 
     @Autowired
@@ -40,12 +41,22 @@ public class SimulationService {
         SimulationContext context = createSimulationContext(building, socketTopic);
         activeSimulations.put(sessionId, context);
 
+        // Запускаємо основний цикл симуляції
         ScheduledFuture<?> simulationTask = scheduler.scheduleAtFixedRate(
                 () -> runMultiThreadedSimulationCycle(sessionId, context),
-                0, 1, TimeUnit.SECONDS
+                0, 100, TimeUnit.MILLISECONDS
         );
 
         context.setSimulationTask(simulationTask);
+
+        // Запускаємо потік для надсилання даних через WebSocket
+        ScheduledFuture<?> webSocketTask = scheduler.scheduleAtFixedRate(
+                () -> sendWebSocketUpdates(context),
+                0, 1, TimeUnit.SECONDS
+        );
+
+        context.setWebSocketTask(webSocketTask);
+
         log.info("Simulation started successfully for session: {}", sessionId);
     }
 
@@ -68,21 +79,12 @@ public class SimulationService {
         }
 
         List<Future<?>> sensorTasks = new ArrayList<>();
-
         try {
-            // Запускаємо 4 паралельні задачі
-            for (int i = 0; i < 4; i++) {
+            // Запускаємо 3 паралельні задачі
+            for (int i = 0; i < 3; i++) {
                 Future<?> task = sensorTriggerExecutor.submit(() -> {
                     try {
                         context.getSimulator().triggerRandomSensor();
-
-                        String log = context.getEventLogger().getBuffer();
-                        if (!log.isEmpty()) {
-                            String threadInfo = String.format("[Thread: %s] ", Thread.currentThread().getName());
-                            log = threadInfo + log;
-                            webSocketService.sendSimulationEvent(context.getSocketTopic(), log);
-                            context.getEventLogger().clearBuffer();
-                        }
                     } catch (Exception e) {
                         log.error("Error in sensor trigger thread: {}", e.getMessage());
                     }
@@ -106,6 +108,22 @@ public class SimulationService {
         }
     }
 
+    private void sendWebSocketUpdates(SimulationContext context) {
+        webSocketSenderExecutor.submit(() -> {
+            try {
+                String log = context.getEventLogger().getBuffer();
+                if (!log.isEmpty()) {
+                    String threadInfo = String.format("[WebSocketThread: %s] ", Thread.currentThread().getName());
+                    log = threadInfo + log;
+                    webSocketService.sendSimulationEvent(context.getSocketTopic(), log);
+                    context.getEventLogger().clearBuffer();
+                }
+            } catch (Exception e) {
+                log.error("Error in WebSocket sender thread: {}", e.getMessage());
+            }
+        });
+    }
+
     public void pauseSimulation(Long sessionId) {
         if (sessionId == null) {
             log.warn("Cannot pause simulation: session ID is null");
@@ -118,17 +136,19 @@ public class SimulationService {
             return;
         }
 
-        if (context.isPaused()) {
-            log.info("Simulation for session {} is already paused", sessionId);
-            return;
-        }
+        synchronized (context) {
+            if (context.isPaused()) {
+                log.info("Simulation for session {} is already paused", sessionId);
+                return;
+            }
 
-        try {
-            context.setPaused(true);
-            webSocketService.sendSimulationEvent(context.getSocketTopic(), "Simulation paused");
-            log.info("Simulation paused successfully for session: {}", sessionId);
-        } catch (Exception e) {
-            log.error("Error while pausing simulation for session {}: {}", sessionId, e.getMessage(), e);
+            try {
+                context.setPaused(true);
+                webSocketService.sendSimulationEvent(context.getSocketTopic(), "Simulation paused");
+                log.info("Simulation paused successfully for session: {}", sessionId);
+            } catch (Exception e) {
+                log.error("Error while pausing simulation for session {}: {}", sessionId, e.getMessage(), e);
+            }
         }
     }
 
@@ -144,19 +164,22 @@ public class SimulationService {
             return;
         }
 
-        if (!context.isPaused()) {
-            log.info("Simulation for session {} is already running", sessionId);
-            return;
-        }
+        synchronized (context) {
+            if (!context.isPaused()) {
+                log.info("Simulation for session {} is already running", sessionId);
+                return;
+            }
 
-        try {
-            context.setPaused(false);
-            webSocketService.sendSimulationEvent(context.getSocketTopic(), "Simulation resumed");
-            log.info("Simulation resumed successfully for session: {}", sessionId);
-        } catch (Exception e) {
-            log.error("Error while resuming simulation for session {}: {}", sessionId, e.getMessage(), e);
+            try {
+                context.setPaused(false);
+                webSocketService.sendSimulationEvent(context.getSocketTopic(), "Simulation resumed");
+                log.info("Simulation resumed successfully for session: {}", sessionId);
+            } catch (Exception e) {
+                log.error("Error while resuming simulation for session {}: {}", sessionId, e.getMessage(), e);
+            }
         }
     }
+
 
     public boolean isSimulationPaused(Long sessionId) {
         SimulationContext context = activeSimulations.get(sessionId);
@@ -167,53 +190,38 @@ public class SimulationService {
         SimulationContext context = activeSimulations.remove(sessionId);
         if (context != null) {
             try {
-                // Відміняємо основну задачу симуляції
+                // Зупиняємо основну задачу симуляції
                 ScheduledFuture<?> task = context.getSimulationTask();
                 if (task != null && !task.isCancelled()) {
                     task.cancel(true);
                 }
 
-                // Чекаємо завершення всіх поточних тригерів сенсорів
+                // Зупиняємо задачу WebSocket
+                ScheduledFuture<?> webSocketTask = context.getWebSocketTask();
+                if (webSocketTask != null && !webSocketTask.isCancelled()) {
+                    webSocketTask.cancel(true);
+                }
+
+                // Чекаємо завершення потоків
                 sensorTriggerExecutor.shutdown();
+                webSocketSenderExecutor.shutdown();
+
                 if (!sensorTriggerExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
                     sensorTriggerExecutor.shutdownNow();
                 }
+                if (!webSocketSenderExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    webSocketSenderExecutor.shutdownNow();
+                }
 
-                // Створюємо новий пул для наступних симуляцій
-                sensorTriggerExecutor = Executors.newFixedThreadPool(4);
+                // Створюємо нові екземпляри ExecutorService для майбутніх симуляцій
+                sensorTriggerExecutor = Executors.newFixedThreadPool(3);
+                webSocketSenderExecutor = Executors.newSingleThreadExecutor();
 
                 log.info("Simulation stopped for session: {}", sessionId);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 log.error("Interrupted while stopping simulation for session: {}", sessionId);
             }
-        }
-    }
-
-    private static class SimulationContext {
-        private final Building building;
-        @Getter
-        private final RobberSimulator simulator;
-        @Getter
-        private final EventLogger eventLogger;
-        private final Linker linker;
-        @Getter
-        private final String socketTopic;
-        @Setter
-        @Getter
-        private ScheduledFuture<?> simulationTask;
-        @Setter
-        @Getter
-        private volatile boolean paused;
-
-        public SimulationContext(Building building, RobberSimulator simulator,
-                                 EventLogger eventLogger, Linker linker, String socketTopic) {
-            this.building = building;
-            this.simulator = simulator;
-            this.eventLogger = eventLogger;
-            this.linker = linker;
-            this.socketTopic = socketTopic;
-            this.paused = false;
         }
     }
 
@@ -252,6 +260,50 @@ public class SimulationService {
             Thread.currentThread().interrupt();
         }
 
+        // Зупиняємо executor для WebSocket
+        webSocketSenderExecutor.shutdown();
+        try {
+            if (!webSocketSenderExecutor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                webSocketSenderExecutor.shutdownNow();
+                if (!webSocketSenderExecutor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                    log.error("WebSocket sender executor did not terminate");
+                }
+            }
+        } catch (InterruptedException e) {
+            webSocketSenderExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+
         log.info("SimulationService cleanup completed");
+    }
+
+    private static class SimulationContext {
+        private final Building building;
+        @Getter
+        private final RobberSimulator simulator;
+        @Getter
+        private final EventLogger eventLogger;
+        private final Linker linker;
+        @Getter
+        private final String socketTopic;
+        @Setter
+        @Getter
+        private ScheduledFuture<?> simulationTask;
+        @Setter
+        @Getter
+        private ScheduledFuture<?> webSocketTask;
+        @Setter
+        @Getter
+        private volatile boolean paused;
+
+        public SimulationContext(Building building, RobberSimulator simulator,
+                                 EventLogger eventLogger, Linker linker, String socketTopic) {
+            this.building = building;
+            this.simulator = simulator;
+            this.eventLogger = eventLogger;
+            this.linker = linker;
+            this.socketTopic = socketTopic;
+            this.paused = false;
+        }
     }
 }

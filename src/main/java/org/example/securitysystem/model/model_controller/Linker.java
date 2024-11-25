@@ -2,6 +2,7 @@ package org.example.securitysystem.model.model_controller;
 
 import org.example.securitysystem.model.entity.building.Building;
 import org.example.securitysystem.model.entity.security_system.alarms.AlarmSystem;
+import org.example.securitysystem.model.entity.security_system.alarms.FireExtinguishing;
 import org.example.securitysystem.model.entity.security_system.alarms.SirenLight;
 import org.example.securitysystem.model.entity.security_system.alarms.SpeakersAlarm;
 import org.example.securitysystem.model.model_controller.mediator.SecurityMediator;
@@ -22,11 +23,15 @@ public class Linker {
 
         AlarmSystem siren = new SirenLight();
         AlarmSystem speakers = new SpeakersAlarm();
+        AlarmSystem fires = new FireExtinguishing();
 
         sc.register(siren, "Siren");
         sc.register(speakers, "Speakers");
+        sc.register(fires, "FireExtinguishing");
+
         siren.setEventManager(sem);
         speakers.setEventManager(sem);
+        fires.setEventManager(sem);
 
         this.el = el;
         sem.subscribe(el);

@@ -37,19 +37,19 @@ public class EventLogger implements SecurityEventListener {
     }
 
 
-    public String getBuffer() {
+    public synchronized String getBuffer() {
         return buffer;
     }
 
-    public void clearBuffer() {
+    public synchronized void clearBuffer() {
         buffer = "";
     }
 
-    public List<Object> getObjectList() {
+    public synchronized List<Object> getObjectList() {
         return objectList;
     }
 
-    public void clearObjectList() {
+    public synchronized void clearObjectList() {
         objectList.clear();
     }
 
