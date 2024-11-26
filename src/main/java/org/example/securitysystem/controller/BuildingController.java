@@ -276,7 +276,7 @@ public class BuildingController {
 
 
 
-    @PostMapping("/removeFloor")
+    @DeleteMapping("/removeFloor")
     public ResponseEntity<String> removeFloor(@RequestParam Long sessionId, @RequestParam int numberOfFloor) {
         try {
             var session = sessionService.getSession(sessionId);
