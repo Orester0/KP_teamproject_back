@@ -87,13 +87,16 @@ public class LogService {
         return logRepository.findBySensor_SensorId(sensorId);
     }
 
-    public List<SensorLog> getEventLogs(Long sessionId, Long floorId, Long roomId, String sensorType) {
+    public List<SensorLog> getEventLogs(Long sessionId, Long floorId, Long roomId, String sensorType) throws Exception {
 
         Specification<EventLog> specification = EventLogSpecification.withFilters(sessionId, floorId, roomId, sensorType);
+        System.out.println("a");
         List<EventLog> eventLogList = logRepository.findAll(specification);
         List<SensorLog> sensorLogs = new ArrayList<>();
         for(EventLog log:eventLogList){
+            System.out.println("b");
             sensorLogs.add(EventLogMapper.eventLogToSensorLog(log));
+            System.out.println("c");
         }
         return sensorLogs;
     }

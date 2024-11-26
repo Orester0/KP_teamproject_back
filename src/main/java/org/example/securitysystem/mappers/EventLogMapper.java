@@ -4,11 +4,11 @@ import org.example.securitysystem.model.dto.SensorLog;
 import org.example.securitysystem.model.models_db.EventLog;
 
 public class EventLogMapper {
-    public static SensorLog eventLogToSensorLog(EventLog eventLog)  {
-        try{
-        return new SensorLog(SensorMapper.SensorDBToSensor(eventLog.getSensor()),true,eventLog.getStartTime());} catch (
-                Exception e) {
-            throw new RuntimeException(e);
-        }
+    public static SensorLog eventLogToSensorLog(EventLog eventLog) throws Exception {
+       SensorLog sensorLog = new SensorLog();
+       sensorLog.setSensorDetails(SensorMapper.SensorDBToSensor(eventLog.getSensor()));
+       sensorLog.setActivated(true);
+       sensorLog.setCurrentTime(eventLog.getStartTime().toString());
+       return sensorLog;
     }
 }
