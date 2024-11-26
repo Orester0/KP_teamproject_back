@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.example.securitysystem.model.entity.building.Building;
+import org.example.securitysystem.model.entity.security_system.alarms.AlarmSystem;
+import org.example.securitysystem.model.entity.security_system.sensors.Sensor;
 import org.example.securitysystem.model.model_controller.Linker;
 import org.example.securitysystem.model.model_controller.mediator.SecurityMediator;
 import org.example.securitysystem.model.model_controller.observer.SecurityEventManager;
@@ -59,9 +61,7 @@ public class SimulationService {
                 0, 1, TimeUnit.SECONDS
         );
 
-
         context.setWebSocketTask(webSocketTask);
-
 
         ScheduledFuture<?> dbTask = scheduler.scheduleAtFixedRate(
                 () -> dbSocketUpdates(context,sessionId),
@@ -105,7 +105,6 @@ public class SimulationService {
                 sensorTasks.add(task);
             }
 
-            // Чекаємо завершення всіх задач з таймаутом
             for (Future<?> task : sensorTasks) {
                 try {
                     task.get(8, TimeUnit.SECONDS);
@@ -124,13 +123,31 @@ public class SimulationService {
     private void sendWebSocketUpdates(SimulationContext context) {
         webSocketSenderExecutor.submit(() -> {
             try {
-                String log = context.getEventLogger().getBuffer();
-                if (!log.isEmpty()) {
-                    String threadInfo = String.format("[WebSocketThread: %s] ", Thread.currentThread().getName());
-                    log = threadInfo + log;
-                    webSocketService.sendSimulationEvent(context.getSocketTopic(), log);
-                    context.getEventLogger().clearBuffer();
+                List<EventLogger.SensorLog> objectList = context.getEventLogger().getObjectList();
+
+                for (var obj : objectList) {
+                    String jsonPayload;
+
+                    if (obj.sensorDetails() instanceof Sensor) {
+                        jsonPayload = String.format(
+                                "{ \"sensorId\": \"%s\", \"time\": \"%s\" }",
+                                ((Sensor) obj.sensorDetails()).getID(),
+                                obj.currentTime()
+                        );
+                    } else {
+                        jsonPayload = String.format(
+                                "{ \"name\": \"%s\", \"activated\": \"%s\", \"time\": \"%s\" }",
+                                ((AlarmSystem) obj.sensorDetails()).getClass().getSimpleName(),
+                                obj.activated(),
+                                obj.currentTime()
+                        );
+                    }
+                    if (!jsonPayload.isEmpty()) {
+                        webSocketService.sendSimulationEvent(context.getSocketTopic(), jsonPayload);
+                    }
                 }
+                context.getEventLogger().clearObjectList();
+
             } catch (Exception e) {
                 log.error("Error in WebSocket sender thread: {}", e.getMessage());
             }
