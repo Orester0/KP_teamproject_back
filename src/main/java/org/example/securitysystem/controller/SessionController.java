@@ -1,6 +1,7 @@
 package org.example.securitysystem.controller;
 
 import com.google.gson.Gson;
+
 import org.example.securitysystem.model.dto.SensorLog;
 import org.example.securitysystem.model.dto.SessionRequest;
 import org.example.securitysystem.model.entity.Session;
@@ -57,6 +58,7 @@ public class SessionController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
     @GetMapping("/getlogs")
     public ResponseEntity<?> getLogs(
             @RequestParam(required = false) Long sessionId,
@@ -79,7 +81,6 @@ public class SessionController {
                     .body(e.getMessage());
         }
     }
-
 
     private String handleError(Exception e) {
         return "Error occurred: " + e.getMessage();

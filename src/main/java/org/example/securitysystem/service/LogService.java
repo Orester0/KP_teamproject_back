@@ -87,7 +87,8 @@ public class LogService {
         return logRepository.findBySensor_SensorId(sensorId);
     }
 
-    public List<SensorLog> getEventLogs(Long sessionId, Long floorId, Long roomId, String sensorType) {
+    public List<SensorLog> getEventLogs(Long sessionId, Long floorId, Long roomId, String sensorType) throws Exception {
+
         Specification<EventLog> specification = EventLogSpecification.withFilters(sessionId, floorId, roomId, sensorType);
         List<EventLog> eventLogList = logRepository.findAll(specification);
         List<SensorLog> sensorLogs = new ArrayList<>();
