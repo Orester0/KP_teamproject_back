@@ -96,8 +96,7 @@ public class SimulationService implements ISimulationService {
 
         List<Future<?>> sensorTasks = new ArrayList<>();
         try {
-            // Запускаємо 3 паралельні задачі
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < context.getSimulator().getBuilding().getFloors().size(); i++) {
                 Future<?> task = sensorTriggerExecutor.submit(() -> {
                     try {
                         context.getSimulator().triggerRandomSensor();
