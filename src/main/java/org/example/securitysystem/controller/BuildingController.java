@@ -5,6 +5,8 @@ import org.example.securitysystem.model.dto.BuildingRequest;
 import org.example.securitysystem.model.dto.SimulationResponse;
 import org.example.securitysystem.model.entity.Session;
 import org.example.securitysystem.model.entity.building.Building;
+import org.example.securitysystem.model.model_controller.command.FloorCommand;
+import org.example.securitysystem.service.FloorCommandRegistry;
 import org.example.securitysystem.service.SessionService;
 import org.example.securitysystem.service.SimulationService;
 import org.example.securitysystem.service.WebSocketService;
@@ -53,63 +55,36 @@ public class BuildingController {
         }
     }
 
-    @PostMapping("/addDefaultFloor")
-    public ResponseEntity<String> addDefaultFloor(@RequestParam Long sessionId) {
+
+    @PostMapping("/addFloor")
+    public ResponseEntity<String> addFloor(@RequestParam Long sessionId, @RequestParam String floorType) {
         try {
             var session = sessionService.getSession(sessionId);
             Building building = getBuildingFromSession(session);
+
             if (building.isFinalized()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot modify finalized building.");
             }
-            building.buildDefaultFloor();
+
+            FloorCommandRegistry commandRegistry = new FloorCommandRegistry();
+            FloorCommand command = commandRegistry.getCommand(floorType);
+
+            if (command == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Invalid floor type. Allowed values are: default, office, hostel.");
+            }
+
+            command.execute(building);
             sessionService.updateSession(session);
-            return ResponseEntity.ok("Default floor added successfully.");
-        }
-        catch (BuildingException e) {
+            return ResponseEntity.ok(floorType + " floor added successfully.");
+        } catch (BuildingException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(handleError(e));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(handleError(e));
         }
     }
 
-    @PostMapping("/addOfficeFloor")
-    public ResponseEntity<String> addOfficeFloor(@RequestParam Long sessionId) {
-        try {
-            var session = sessionService.getSession(sessionId);
-            Building building = getBuildingFromSession(session);
-            if (building.isFinalized()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot modify finalized building.");
-            }
-            building.buildOfficeFloor();
-            sessionService.updateSession(session);
-            return ResponseEntity.ok("Office floor added successfully.");
-        } catch (BuildingException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(handleError(e));
-        }
-        catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(handleError(e));
-        }
-    }
 
-    @PostMapping("/addHostelFloor")
-    public ResponseEntity<String> addHostelFloor(@RequestParam Long sessionId) {
-        try {
-            var session = sessionService.getSession(sessionId);
-            Building building = getBuildingFromSession(session);
-            if (building.isFinalized()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot modify finalized building.");
-            }
-            building.buildHostelFloor();
-            sessionService.updateSession(session);
-            return ResponseEntity.ok("Hostel floor added successfully.");
-        } catch (BuildingException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(handleError(e));
-        }
-        catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(handleError(e));
-        }
-    }
 
     @PostMapping("/finalize")
     public ResponseEntity<String> finalizeBuilding(@RequestParam Long sessionId) {
@@ -122,12 +97,10 @@ public class BuildingController {
             building.finalizeBuilding();
             sessionService.updateSession(session);
 
-
-            // get full building from database with IDs
-            // from some service
-
-            return ResponseEntity.ok("Building finalized successfully.");
-        } catch (BuildingException e) {
+            return ResponseEntity.ok(gson.toJson(building));
+        }
+        catch (BuildingException e)
+        {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(handleError(e));
         }
         catch (Exception e) {
@@ -219,7 +192,6 @@ public class BuildingController {
             }
             return ResponseEntity.ok(gson.toJson(building));
         }
-
         catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

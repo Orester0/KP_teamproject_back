@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,40 +27,11 @@ public class EventsController {
 
     @MessageMapping("/subscribe")
     @SendTo("/topic/events")
-    public String subscribeToEvents(String message) {
+    public String subscribeToEvents(String message, SimpMessageHeaderAccessor headerAccessor) {
+        // Зберігаємо sessionId в атрибутах сесії
+        headerAccessor.getSessionAttributes().put("sessionId", message);
         return "Subscription confirmed for: " + message;
     }
 
-    @PostMapping("/startSimulation")
-    public ResponseEntity<SimulationResponse> startSimulation(@RequestParam Long sessionId) {
-        try {
-            var session = sessionService.getSession(sessionId);
-            Building building = session.getBuilding();
 
-            if (!building.isFinalized()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new SimulationResponse(null, "Building must be finalized before starting simulation"));
-            }
-
-            String socketTopic = webSocketService.createTopicForSession(sessionId);
-            //simulationService.startSimulation(userId, building);
-
-            // Example of sending initial event
-            webSocketService.sendSimulationEvent(socketTopic, "Simulation initialization started");
-
-            return ResponseEntity.ok(new SimulationResponse(socketTopic, "Simulation started successfully"));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(new SimulationResponse(null, "Error: " + e.getMessage()));
-        }
-    }
 }
-
-
-//для реалізації симуляції будуть використовуватись сокети, у сокеті в json буде приходити об'єкт сенсора
-//        {
-//floorID,
-//roomID,
-//sensorID,
-//sensorStatus:(тут просто має приходити bool з інформацією про те чи цей сенсор в даний момент активний (включилась сигналізація) чи не)
-//        }

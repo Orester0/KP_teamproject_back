@@ -23,3 +23,20 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         config.setApplicationDestinationPrefixes("/app");
     }
 }
+//
+//@Configuration
+//@EnableWebSocket
+//public class WebSocketConfig implements WebSocketConfigurer {
+//
+//    private final WebSocketEventHandler webSocketEventHandler;
+//
+//    public WebSocketConfig(WebSocketEventHandler webSocketEventHandler) {
+//        this.webSocketEventHandler = webSocketEventHandler;
+//    }
+//
+//    @Override
+//    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+//        registry.addHandler(webSocketEventHandler, "/ws")
+//                .setAllowedOrigins("*"); // В продакшені краще вказати конкретні домени
+//    }
+//}
