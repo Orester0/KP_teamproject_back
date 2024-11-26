@@ -1,7 +1,7 @@
 package org.example.securitysystem.model.entity.room;
 
 import lombok.NoArgsConstructor;
-import org.example.securitysystem.config.SecurityConfig;
+import org.example.securitysystem.config.building_config.SecurityConfig;
 import org.example.securitysystem.model.entity.security_system.sensors.*;
 @NoArgsConstructor
 public class Kitchen extends Room {

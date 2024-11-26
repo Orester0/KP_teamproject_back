@@ -1,7 +1,7 @@
 package org.example.securitysystem.mappers;
 
 import org.example.securitysystem.model.entity.room.Room;
-import org.example.securitysystem.model.models_db.RoomDB;
+import org.example.securitysystem.model.db_models.RoomDB;
 
 public class RoomMapper {
     public static Room RoomDbToRoom(RoomDB room) throws Exception{

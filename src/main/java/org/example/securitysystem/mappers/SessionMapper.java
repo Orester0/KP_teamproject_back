@@ -6,15 +6,10 @@ import org.example.securitysystem.model.entity.building.Building;
 import org.example.securitysystem.model.entity.building.Floor;
 import org.example.securitysystem.model.entity.room.Room;
 import org.example.securitysystem.model.entity.security_system.sensors.Sensor;
-import org.example.securitysystem.model.models_db.FloorDB;
-import org.example.securitysystem.model.models_db.RoomDB;
-import org.example.securitysystem.model.models_db.SensorDB;
-import org.example.securitysystem.model.models_db.SessionDB;
-
-import java.io.Console;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import org.example.securitysystem.model.db_models.FloorDB;
+import org.example.securitysystem.model.db_models.RoomDB;
+import org.example.securitysystem.model.db_models.SensorDB;
+import org.example.securitysystem.model.db_models.SessionDB;
 
 public class SessionMapper {
 

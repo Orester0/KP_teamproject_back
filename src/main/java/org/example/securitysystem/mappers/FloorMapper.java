@@ -1,7 +1,7 @@
 package org.example.securitysystem.mappers;
 
 import org.example.securitysystem.model.entity.building.Floor;
-import org.example.securitysystem.model.models_db.FloorDB;
+import org.example.securitysystem.model.db_models.FloorDB;
 
 public class FloorMapper {
     public static Floor FloorDBToFloor(FloorDB floor){

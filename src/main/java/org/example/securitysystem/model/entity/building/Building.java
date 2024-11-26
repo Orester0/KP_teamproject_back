@@ -2,17 +2,13 @@ package org.example.securitysystem.model.entity.building;
 
 import com.google.gson.annotations.Expose;
 import lombok.Data;
-import lombok.Getter;
 import org.example.securitysystem.exception.BuildingException;
 import org.example.securitysystem.model.entity.room.*;
-import org.example.securitysystem.model.entity.security_system.sensors.*;
-import org.example.securitysystem.model.model_controller.builder.*;
+import org.example.securitysystem.service.domain_service.builder.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Data
 public class Building implements Serializable {
@@ -50,16 +46,13 @@ public class Building implements Serializable {
         {
             throw new BuildingException("Number of floors does not match the expected height");
         }
-
         int floorNumber = 0;
-
         for (Floor floor : floors)
         {
             floor.setFloorNumber(floorNumber++);
             for (Room room : floor.getRooms())
             {
                 room.calculateSensor();
-            //
             }
         }
     }

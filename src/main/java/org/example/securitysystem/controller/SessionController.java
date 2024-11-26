@@ -1,13 +1,9 @@
 package org.example.securitysystem.controller;
 
 import com.google.gson.Gson;
-
-import org.example.securitysystem.model.dto.MessageResponse;
-import org.example.securitysystem.model.dto.SensorLog;
-import org.example.securitysystem.model.dto.SessionRequest;
+import org.example.securitysystem.model.dto.*;
 import org.example.securitysystem.model.entity.Session;
-import org.example.securitysystem.service.implementations.LogService;
-import org.example.securitysystem.service.implementations.SessionService;
+import org.example.securitysystem.service.application_service.implementations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,7 +62,7 @@ public class SessionController {
         }
     }
 
-    @GetMapping("/getlogs")
+    @GetMapping("/get-logs")
     public ResponseEntity<String> getLogs(
             @RequestParam(required = false) Long sessionId,
             @RequestParam(required = false) Long floorId,

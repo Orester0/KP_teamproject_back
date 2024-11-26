@@ -1,18 +1,13 @@
 package org.example.securitysystem.controller;
+
 import com.google.gson.Gson;
 import org.example.securitysystem.exception.BuildingException;
-import org.example.securitysystem.model.dto.BuildingRequest;
-import org.example.securitysystem.model.dto.MessageResponse;
-import org.example.securitysystem.model.dto.SimulationResponse;
+import org.example.securitysystem.model.dto.*;
 import org.example.securitysystem.model.entity.Session;
 import org.example.securitysystem.model.entity.building.Building;
-import org.example.securitysystem.model.model_controller.command.FloorCommand;
-import org.example.securitysystem.service.*;
-import org.example.securitysystem.service.implementations.ReplayService;
-import org.example.securitysystem.service.implementations.SessionService;
-import org.example.securitysystem.service.implementations.SimulationService;
-import org.example.securitysystem.service.implementations.WebSocketService;
-import org.example.securitysystem.service.interfaces.ISessionService;
+import org.example.securitysystem.service.application_service.FloorCommandRegistry;
+import org.example.securitysystem.service.domain_service.command.IAddFloorCommand;
+import org.example.securitysystem.service.application_service.implementations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -20,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-
 
 @RestController
 @RequestMapping("/api/building")
@@ -74,8 +68,7 @@ public class BuildingController {
         }
     }
 
-
-    @PostMapping("/addFloor")
+    @PostMapping("/add-floor")
     public ResponseEntity<String> addFloor(@RequestParam Long sessionId, @RequestParam String floorType) {
         try {
             var session = sessionService.getSession(sessionId);
@@ -88,7 +81,7 @@ public class BuildingController {
             }
 
             FloorCommandRegistry commandRegistry = new FloorCommandRegistry();
-            FloorCommand command = commandRegistry.getCommand(floorType);
+            IAddFloorCommand command = commandRegistry.getCommand(floorType);
 
             if (command == null) {
                 MessageResponse messageResponse = new MessageResponse();
@@ -113,8 +106,6 @@ public class BuildingController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(gson.toJson(messageResponse));
         }
     }
-
-
 
     @PostMapping("/finalize")
     public ResponseEntity<String> finalizeBuilding(@RequestParam Long sessionId) {
@@ -205,8 +196,7 @@ public class BuildingController {
         }
     }
 
-
-    @PostMapping("/startSimulation")
+    @PostMapping("/start-simulation")
     public ResponseEntity<SimulationResponse> startSimulation(@RequestParam Long sessionId) {
         try {
             var session = sessionService.getSession(sessionId);
@@ -229,7 +219,7 @@ public class BuildingController {
 
     }
 
-    @PostMapping("/stopSimulation")
+    @PostMapping("/stop-simulation")
     public ResponseEntity<SimulationResponse> stopSimulation(@RequestParam Long sessionId) {
         try {
             simulationService.stop(sessionId);
@@ -242,7 +232,7 @@ public class BuildingController {
         }
     }
 
-    @PostMapping("/pauseSimulation")
+    @PostMapping("/pause-simulation")
     public ResponseEntity<SimulationResponse> pauseSimulation(@RequestParam Long sessionId) {
         try {
             var session = sessionService.getSession(sessionId);
@@ -257,7 +247,7 @@ public class BuildingController {
         }
     }
 
-    @PostMapping("/resumeSimulation")
+    @PostMapping("/resume-simulation")
     public ResponseEntity<SimulationResponse> resumeSimulation(@RequestParam Long sessionId) {
         try {
             if (!simulationService.isSimulationPaused(sessionId)) {
@@ -274,9 +264,7 @@ public class BuildingController {
         }
     }
 
-
-
-    @DeleteMapping("/removeFloor")
+    @DeleteMapping("/remove-floor")
     public ResponseEntity<String> removeFloor(@RequestParam Long sessionId, @RequestParam int numberOfFloor) {
         try {
             var session = sessionService.getSession(sessionId);

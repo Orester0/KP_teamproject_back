@@ -1,7 +1,7 @@
 package org.example.securitysystem.mappers;
 
 import org.example.securitysystem.model.entity.security_system.sensors.Sensor;
-import org.example.securitysystem.model.models_db.SensorDB;
+import org.example.securitysystem.model.db_models.SensorDB;
 
 public class SensorMapper {
 

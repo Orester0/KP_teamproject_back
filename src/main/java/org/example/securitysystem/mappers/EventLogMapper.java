@@ -1,7 +1,7 @@
 package org.example.securitysystem.mappers;
 
 import org.example.securitysystem.model.dto.SensorLog;
-import org.example.securitysystem.model.models_db.EventLog;
+import org.example.securitysystem.model.db_models.EventLog;
 
 public class EventLogMapper {
     public static SensorLog eventLogToSensorLog(EventLog eventLog) throws Exception {
