@@ -1,9 +1,10 @@
 package org.example.securitysystem.controller;
 
 import com.google.gson.Gson;
-import org.example.securitysystem.model.dto.LogRequest;
+import org.example.securitysystem.model.dto.SensorLog;
 import org.example.securitysystem.model.dto.SessionRequest;
 import org.example.securitysystem.model.entity.Session;
+import org.example.securitysystem.service.LogService;
 import org.example.securitysystem.service.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,11 +18,13 @@ import java.util.List;
 public class SessionController {
 
     private final SessionService sessionService;
+    private final LogService logService;
     private final Gson gson;
 
     @Autowired
-    public SessionController(SessionService sessionService) {
+    public SessionController(SessionService sessionService, LogService logService) {
         this.sessionService = sessionService;
+        this.logService = logService;
         this.gson = new Gson();
     }
 
@@ -54,17 +57,29 @@ public class SessionController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
     @GetMapping("/getlogs")
-    public ResponseEntity<String> getLogs(LogRequest request) {
+    public ResponseEntity<?> getLogs(
+            @RequestParam(required = false) Long sessionId,
+            @RequestParam(required = false) Long floorId,
+            @RequestParam(required = false) Long roomId,
+            @RequestParam(required = false) String sensorType) {
         try {
-            //List<Session> sessions = sessionService.getAllSessions();
-            String logs = "";
+            List<SensorLog> logs = logService.getEventLogs(
+                    sessionId,
+                    floorId,
+                    roomId,
+                    sensorType
+            );
+
             return ResponseEntity.ok(gson.toJson(logs));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        catch (Exception e)
+        {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(e.getMessage());
         }
     }
+
 
     private String handleError(Exception e) {
         return "Error occurred: " + e.getMessage();
