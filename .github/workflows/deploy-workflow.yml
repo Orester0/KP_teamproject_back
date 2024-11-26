@@ -1,0 +1,43 @@
+name: Deploy Branch Workflow
+
+on:
+  push:
+    branches: [deploy]
+
+jobs:
+  build:
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'oracle'
+          java-version: '21'
+
+      - name: Build Project
+        run: mvn clean install -DskipTests
+
+      - name: Login to docker hub
+        run: echo "dckr_pat_Imv_Ir16DLOWjVcd2rkt0nm97Zw" | docker login -u ellen05 --password-stdin
+
+      - name: Build docker image
+        run: docker build -t ellen05/security-system
+
+      - name: Publish image to docker hub
+        run: docker push ellen05/security-system:latest
+
+  deploy:
+    needs: build
+    runs-on: [aws-ec2-sec-sys]
+    steps:
+      - name: Run image from docker hub
+        run: docker pull ellen05/security-system:latest
+
+      - name: Delete old container
+        run: docker rm -f security-system-container
+
+      - name: Run docker container
+        run: docker run -d -p 8080:8080 --name security-system-container ellen05/security-system:latest
