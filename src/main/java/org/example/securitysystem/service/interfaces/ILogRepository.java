@@ -1,7 +1,6 @@
-package org.example.securitysystem.service;
+package org.example.securitysystem.service.interfaces;
 
 import org.example.securitysystem.model.models_db.EventLog;
-import org.example.securitysystem.model.models_db.SessionDB;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

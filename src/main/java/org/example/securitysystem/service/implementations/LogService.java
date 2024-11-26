@@ -1,13 +1,15 @@
-package org.example.securitysystem.service;
+package org.example.securitysystem.service.implementations;
 
-import lombok.extern.slf4j.Slf4j;
 import org.example.securitysystem.mappers.EventLogMapper;
 import org.example.securitysystem.model.dto.SensorLog;
-import org.example.securitysystem.model.entity.security_system.SecurityColleague;
-import org.example.securitysystem.model.entity.security_system.alarms.AlarmSystem;
 import org.example.securitysystem.model.entity.security_system.sensors.Sensor;
 import org.example.securitysystem.model.model_controller.observer.listener.EventLogger;
 import org.example.securitysystem.model.models_db.*;
+import org.example.securitysystem.service.EventLogSpecification;
+import org.example.securitysystem.service.interfaces.IAlarmRepository;
+import org.example.securitysystem.service.interfaces.ILogRepository;
+import org.example.securitysystem.service.interfaces.ISensorRepository;
+import org.example.securitysystem.service.interfaces.ISessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -15,8 +17,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Queue;
 
 
 @Service
@@ -41,7 +41,7 @@ public class LogService {
         this.sessionRepository = sessionRepository;
     }
 
-    public EventLog createEventLog(long sensorId,LocalDateTime now) {
+    public EventLog createEventLog(long sensorId, LocalDateTime now) {
 
         SensorDB sensor = sensorRepository.findById(sensorId)
                 .orElseThrow(() -> new RuntimeException("Sensor not found"));
@@ -60,7 +60,7 @@ public class LogService {
         return logRepository.save(eventLog);
     }
 
-    public AlarmLog createAlarmLog(Long sessionId, String type, boolean status,LocalDateTime time){
+    public void createAlarmLog(Long sessionId, String type, boolean status, LocalDateTime time){
         AlarmLog alarmLog = new AlarmLog();
         SessionDB sessionDB = sessionRepository.findById(sessionId).orElseThrow( );
         alarmLog.setSession(sessionDB);
@@ -68,7 +68,7 @@ public class LogService {
         alarmLog.setTime(time);
         alarmLog.setStatus(status);
 
-        return alarmRepository.save(alarmLog);
+        alarmRepository.save(alarmLog);
     }
 
     public void createLog(List<EventLogger.SensorLog> logsInfo, Long sessionId){
@@ -88,7 +88,6 @@ public class LogService {
     }
 
     public List<SensorLog> getEventLogs(Long sessionId, Long floorId, Long roomId, String sensorType) throws Exception {
-
         Specification<EventLog> specification = EventLogSpecification.withFilters(sessionId, floorId, roomId, sensorType);
         List<EventLog> eventLogList = logRepository.findAll(specification);
         List<SensorLog> sensorLogs = new ArrayList<>();

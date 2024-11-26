@@ -3,7 +3,6 @@ package org.example.securitysystem.model.entity.security_system.alarms;
 import org.example.securitysystem.model.entity.security_system.SecurityColleague;
 import org.example.securitysystem.model.model_controller.mediator.SecuritySystemMediator;
 import org.example.securitysystem.model.model_controller.observer.SecurityEventManager;
-import org.example.securitysystem.service.LogService;
 
 public abstract class AlarmSystem implements SecurityColleague {
     protected SecuritySystemMediator securityMediator;

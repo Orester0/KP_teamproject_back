@@ -2,11 +2,12 @@ package org.example.securitysystem.controller;
 
 import com.google.gson.Gson;
 
+import org.example.securitysystem.model.dto.MessageResponse;
 import org.example.securitysystem.model.dto.SensorLog;
 import org.example.securitysystem.model.dto.SessionRequest;
 import org.example.securitysystem.model.entity.Session;
-import org.example.securitysystem.service.LogService;
-import org.example.securitysystem.service.SessionService;
+import org.example.securitysystem.service.implementations.LogService;
+import org.example.securitysystem.service.implementations.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,9 @@ public class SessionController {
             Session session = sessionService.createSession(request.getName());
             return ResponseEntity.ok(gson.toJson(session));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(handleError(e));
+            MessageResponse messageResponse = new MessageResponse();
+            messageResponse.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(gson.toJson(messageResponse));
         }
     }
 
@@ -45,7 +48,9 @@ public class SessionController {
             Session session = sessionService.openSession(request.getName());
             return ResponseEntity.ok(gson.toJson(session));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(handleError(e));
+            MessageResponse messageResponse = new MessageResponse();
+            messageResponse.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(messageResponse));
         }
     }
 
@@ -55,12 +60,14 @@ public class SessionController {
             List<Session> sessions = sessionService.getAllSessions();
             return ResponseEntity.ok(gson.toJson(sessions));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            MessageResponse messageResponse = new MessageResponse();
+            messageResponse.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(gson.toJson(messageResponse));
         }
     }
 
     @GetMapping("/getlogs")
-    public ResponseEntity<?> getLogs(
+    public ResponseEntity<String> getLogs(
             @RequestParam(required = false) Long sessionId,
             @RequestParam(required = false) Long floorId,
             @RequestParam(required = false) Long roomId,
@@ -75,14 +82,10 @@ public class SessionController {
 
             return ResponseEntity.ok(gson.toJson(logs));
         }
-        catch (Exception e)
-        {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(e.getMessage());
+        catch (Exception e) {
+            MessageResponse messageResponse = new MessageResponse();
+            messageResponse.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(gson.toJson(messageResponse));
         }
-    }
-
-    private String handleError(Exception e) {
-        return "Error occurred: " + e.getMessage();
     }
 }

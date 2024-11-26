@@ -1,4 +1,4 @@
-package org.example.securitysystem.service;
+package org.example.securitysystem.service.implementations;
 
 import jakarta.annotation.PreDestroy;
 import lombok.Getter;
@@ -12,6 +12,7 @@ import org.example.securitysystem.model.model_controller.mediator.SecurityMediat
 import org.example.securitysystem.model.model_controller.observer.SecurityEventManager;
 import org.example.securitysystem.model.model_controller.observer.listener.EventLogger;
 import org.example.securitysystem.model.model_controller.robber_simulator.RobberSimulator;
+import org.example.securitysystem.service.interfaces.ISimulationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +23,12 @@ import java.util.concurrent.*;
 
 @Slf4j
 @Service
-public class SimulationService {
+public class SimulationService implements ISimulationService {
     private final WebSocketService webSocketService;
     private final Map<Long, SimulationContext> activeSimulations = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
 
-    private ExecutorService sensorTriggerExecutor = Executors.newFixedThreadPool(3); // 3 потоки для сенсорів
+    private ExecutorService sensorTriggerExecutor;// 3 потоки для сенсорів
     private ExecutorService webSocketSenderExecutor = Executors.newSingleThreadExecutor(); // 1 потік для WebSocket
     private ExecutorService dbSenderExecutor = Executors.newSingleThreadExecutor();
     private final LogService logService;
@@ -39,10 +40,10 @@ public class SimulationService {
         this.logService = logService;
     }
 
-    public void startSimulation(Long sessionId, Building building, String socketTopic) {
+    public void start(Long sessionId, Building building, String socketTopic) {
         log.info("Starting simulation for session: {}", sessionId);
 
-        stopSimulation(sessionId);
+        stop(sessionId);
 
         SimulationContext context = createSimulationContext(building, socketTopic);
         activeSimulations.put(sessionId, context);
@@ -73,7 +74,8 @@ public class SimulationService {
         log.info("Simulation started successfully for session: {}", sessionId);
     }
 
-    private SimulationContext createSimulationContext(Building building, String socketTopic) {
+    private SimulationContext createSimulationContext(Building building,
+                                                      String socketTopic) {
         SecurityMediator securityController = new SecurityMediator();
         SecurityEventManager securityEventManager = new SecurityEventManager();
         EventLogger eventLogger = new EventLogger();
@@ -82,6 +84,7 @@ public class SimulationService {
         linker.link();
 
         RobberSimulator simulator = new RobberSimulator(building);
+         sensorTriggerExecutor = Executors.newFixedThreadPool(building.getFloors().size());
 
         return new SimulationContext(simulator,eventLogger, socketTopic);
     }
@@ -127,7 +130,6 @@ public class SimulationService {
                 StringBuilder jsonPayload = new StringBuilder();
                 for (var obj : objectList) {
 
-
                     if (obj.sensorDetails() instanceof Sensor) {
                         jsonPayload.append(String.format(
                                 "{ \"sensorId\": \"%s\", \"time\": \"%s\" } \n",
@@ -143,7 +145,7 @@ public class SimulationService {
                         ));
                     }
                 }
-                if (jsonPayload.length() > 0) {
+                if (!jsonPayload.isEmpty()) {
                     webSocketService.sendSimulationEvent(context.getSocketTopic(), jsonPayload.toString());
                 }
                 context.getEventLogger().clearObjectList();
@@ -166,7 +168,7 @@ public class SimulationService {
         });
     }
 
-    public void pauseSimulation(Long sessionId) {
+    public void pause(Long sessionId) {
         if (sessionId == null) {
             log.warn("Cannot pause simulation: session ID is null");
             return;
@@ -194,7 +196,7 @@ public class SimulationService {
         }
     }
 
-    public void resumeSimulation(Long sessionId) {
+    public void resume(Long sessionId) {
         if (sessionId == null) {
             log.warn("Cannot resume simulation: session ID is null");
             return;
@@ -228,7 +230,7 @@ public class SimulationService {
         return context != null && context.isPaused();
     }
 
-    public void stopSimulation(Long sessionId) {
+    public void stop(Long sessionId) {
         SimulationContext context = activeSimulations.remove(sessionId);
         if (context != null) {
             try {
@@ -264,7 +266,7 @@ public class SimulationService {
                 }
 
                 // Створюємо нові екземпляри ExecutorService для майбутніх симуляцій
-                sensorTriggerExecutor = Executors.newFixedThreadPool(3);
+                sensorTriggerExecutor = Executors.newFixedThreadPool(context.getSimulator().getBuilding().getFloors().size());
                 webSocketSenderExecutor = Executors.newSingleThreadExecutor();
                 dbSenderExecutor = Executors.newSingleThreadExecutor();
 
@@ -281,7 +283,7 @@ public class SimulationService {
         log.info("Starting SimulationService cleanup...");
 
         // Зупиняємо всі активні симуляції
-        activeSimulations.keySet().forEach(this::stopSimulation);
+        activeSimulations.keySet().forEach(this::stop);
 
         // Зупиняємо scheduler
         scheduler.shutdown();

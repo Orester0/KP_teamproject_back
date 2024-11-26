@@ -1,4 +1,4 @@
-package org.example.securitysystem.service;
+package org.example.securitysystem.service.implementations;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

@@ -1,13 +1,11 @@
-package org.example.securitysystem.service;
+package org.example.securitysystem.service.interfaces;
 
 
 import org.example.securitysystem.model.entity.Session;
 import org.example.securitysystem.model.entity.building.Building;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public interface ISessionService {

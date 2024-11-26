@@ -1,4 +1,4 @@
-package org.example.securitysystem.service;
+package org.example.securitysystem.service.implementations;
 
 
 import jakarta.transaction.Transactional;
@@ -6,8 +6,9 @@ import org.example.securitysystem.mappers.SessionMapper;
 import org.example.securitysystem.model.entity.Session;
 import org.example.securitysystem.model.entity.building.Building;
 import org.example.securitysystem.model.models_db.SessionDB;
+import org.example.securitysystem.service.interfaces.ISessionRepository;
+import org.example.securitysystem.service.interfaces.ISessionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

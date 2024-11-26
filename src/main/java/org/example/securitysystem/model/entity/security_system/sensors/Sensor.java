@@ -5,10 +5,8 @@ import lombok.Data;
 import org.example.securitysystem.model.entity.security_system.SecurityColleague;
 import org.example.securitysystem.model.model_controller.mediator.SecuritySystemMediator;
 import org.example.securitysystem.model.model_controller.observer.SecurityEventManager;
-import org.example.securitysystem.service.LogService;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 @Data
 public abstract class Sensor implements SecurityColleague, Serializable {

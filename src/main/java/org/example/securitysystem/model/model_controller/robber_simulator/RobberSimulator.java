@@ -1,5 +1,6 @@
 package org.example.securitysystem.model.model_controller.robber_simulator;
 
+import lombok.Data;
 import org.example.securitysystem.model.entity.building.Building;
 import org.example.securitysystem.model.entity.building.Floor;
 import org.example.securitysystem.model.entity.security_system.sensors.Sensor;
@@ -10,7 +11,7 @@ import java.util.Random;
 
 
 
-
+@Data
 public class RobberSimulator {
     private final Random random;
     private final Building building;

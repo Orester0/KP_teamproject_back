@@ -51,7 +51,7 @@ public class Building implements Serializable {
             throw new BuildingException("Number of floors does not match the expected height");
         }
 
-        int floorNumber = 1;
+        int floorNumber = 0;
 
         for (Floor floor : floors)
         {
