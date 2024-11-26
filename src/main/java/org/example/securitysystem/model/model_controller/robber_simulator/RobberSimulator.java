@@ -47,4 +47,6 @@ public class RobberSimulator {
 
         sensor.detect();
     }
+
+
 }

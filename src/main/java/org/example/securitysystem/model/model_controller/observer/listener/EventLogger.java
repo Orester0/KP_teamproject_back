@@ -13,8 +13,8 @@ import java.util.List;
 public class EventLogger implements SecurityEventListener {
 
 
-    public static List<Object> objectList = new ArrayList<>();
-    public static List<Object> objectList2 = new ArrayList<>();
+    public static List<SensorLog> objectList = new ArrayList<>();
+    public static List<SensorLog> objectList2 = new ArrayList<>();
 
     public static String buffer = "";
 
@@ -30,7 +30,7 @@ public class EventLogger implements SecurityEventListener {
 
         SensorLogString sensorLogString;
 
-        sensorLogString = new SensorLogString(333, activated, currentTime);
+        sensorLogString = new SensorLogString(null, activated, currentTime);
 
         if(sensorDetails instanceof Sensor){
             sensorLogString = new SensorLogString(((Sensor) sensorDetails).getID(), activated, currentTime);
@@ -55,7 +55,7 @@ public class EventLogger implements SecurityEventListener {
         buffer = "";
     }
 
-    public synchronized List<Object> getObjectList() {
+    public synchronized List<SensorLog> getObjectList() {
         return objectList;
     }
 
@@ -63,9 +63,16 @@ public class EventLogger implements SecurityEventListener {
         objectList.clear();
     }
 
+    public synchronized List<SensorLog> getObjectList2() {
+        return objectList2;
+    }
+
+    public synchronized void clearObjectList2() {
+        objectList2.clear();
+    }
 
 
 
-    public record SensorLogString(long sensorDetails, boolean activated, String currentTime) {}
+    public record SensorLogString(Long sensorDetails, boolean activated, String currentTime) {}
     public record SensorLog(SecurityColleague sensorDetails, boolean activated, LocalDateTime currentTime) {}
 }

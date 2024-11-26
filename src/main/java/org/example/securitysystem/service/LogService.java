@@ -1,6 +1,8 @@
 package org.example.securitysystem.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.securitysystem.mappers.EventLogMapper;
+import org.example.securitysystem.model.dto.SensorLog;
 import org.example.securitysystem.model.entity.security_system.SecurityColleague;
 import org.example.securitysystem.model.entity.security_system.alarms.AlarmSystem;
 import org.example.securitysystem.model.entity.security_system.sensors.Sensor;
@@ -11,6 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -68,7 +71,7 @@ public class LogService {
         return alarmRepository.save(alarmLog);
     }
 
-    public void createLog(Queue<EventLogger.SensorLog> logsInfo, Long sessionId){
+    public void createLog(List<EventLogger.SensorLog> logsInfo, Long sessionId){
         for(EventLogger.SensorLog log: logsInfo){
             if(log.sensorDetails() instanceof Sensor){
                 createEventLog(((Sensor) log.sensorDetails()).getID(), log.currentTime());
@@ -84,11 +87,15 @@ public class LogService {
         return logRepository.findBySensor_SensorId(sensorId);
     }
 
-    public List<EventLog> getEventLogs(Long sessionId, Long floorId, Long roomId, String sensorType) {
+    public List<SensorLog> getEventLogs(Long sessionId, Long floorId, Long roomId, String sensorType) {
 
         Specification<EventLog> specification = EventLogSpecification.withFilters(sessionId, floorId, roomId, sensorType);
-
-        return logRepository.findAll(specification);
+        List<EventLog> eventLogList = logRepository.findAll(specification);
+        List<SensorLog> sensorLogs = new ArrayList<>();
+        for(EventLog log:eventLogList){
+            sensorLogs.add(EventLogMapper.eventLogToSensorLog(log));
+        }
+        return sensorLogs;
     }
 
 

@@ -106,10 +106,7 @@ public class SessionService implements ISessionService {
     }
     }
 
-    @Override
-    public Optional<Long> getSessionIdByName(String name) {
-        return Optional.empty();
-    }
+
 
 
 }
