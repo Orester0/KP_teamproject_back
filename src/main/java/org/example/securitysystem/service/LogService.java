@@ -68,7 +68,7 @@ public class LogService {
         return alarmRepository.save(alarmLog);
     }
 
-    public void createLog(Queue<EventLogger.SensorLog> logsInfo, Long sessionId){
+    public void createLog(List<EventLogger.SensorLog> logsInfo, Long sessionId){
         for(EventLogger.SensorLog log: logsInfo){
             if(log.sensorDetails() instanceof Sensor){
                 createEventLog(((Sensor) log.sensorDetails()).getID(), log.currentTime());
