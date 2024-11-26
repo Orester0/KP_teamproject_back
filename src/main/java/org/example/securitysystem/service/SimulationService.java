@@ -24,6 +24,7 @@ public class SimulationService {
     private final WebSocketService webSocketService;
     private final Map<Long, SimulationContext> activeSimulations = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
+
     private ExecutorService sensorTriggerExecutor = Executors.newFixedThreadPool(3); // 3 потоки для сенсорів
     private ExecutorService webSocketSenderExecutor = Executors.newSingleThreadExecutor(); // 1 потік для WebSocket
     private ExecutorService dbSenderExecutor = Executors.newSingleThreadExecutor();
@@ -139,8 +140,8 @@ public class SimulationService {
     private void dbSocketUpdates(SimulationContext context, long sessionId) {
         dbSenderExecutor.submit(() -> {
             try {
-               List< EventLogger.SensorLog> logs = context.getEventLogger().getObjectList2();
-               logService.createLog(logs,sessionId);
+                List< EventLogger.SensorLog> logs = context.getEventLogger().getObjectList2();
+                logService.createLog(logs,sessionId);
                 context.getEventLogger().clearObjectList2();
             } catch (Exception e) {
                 log.error("Error in WebSocket sender thread: {}", e.getMessage());
@@ -304,6 +305,20 @@ public class SimulationService {
             }
         } catch (InterruptedException e) {
             webSocketSenderExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+
+        // Зупиняємо executor для DB
+        dbSenderExecutor.shutdown();
+        try {
+            if (!dbSenderExecutor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                dbSenderExecutor.shutdownNow();
+                if (!dbSenderExecutor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                    log.error("DB sender executor did not terminate");
+                }
+            }
+        } catch (InterruptedException e) {
+            dbSenderExecutor.shutdownNow();
             Thread.currentThread().interrupt();
         }
 

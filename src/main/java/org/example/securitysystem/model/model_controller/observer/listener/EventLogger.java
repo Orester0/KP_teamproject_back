@@ -40,8 +40,6 @@ public class EventLogger implements SecurityEventListener {
         SensorLog sensorLog = new SensorLog(sensorDetails, activated, time);
         buffer += sensorLogString + "\n";
 
-
-        // Додаємо до списку Object
         objectList.add(sensorLog);
         objectList2.add(sensorLog);
     }
