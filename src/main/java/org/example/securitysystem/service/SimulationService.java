@@ -124,27 +124,27 @@ public class SimulationService {
         webSocketSenderExecutor.submit(() -> {
             try {
                 List<EventLogger.SensorLog> objectList = context.getEventLogger().getObjectList();
-
+                StringBuilder jsonPayload = new StringBuilder();
                 for (var obj : objectList) {
-                    String jsonPayload;
+
 
                     if (obj.sensorDetails() instanceof Sensor) {
-                        jsonPayload = String.format(
-                                "{ \"sensorId\": \"%s\", \"time\": \"%s\" }",
+                        jsonPayload.append(String.format(
+                                "{ \"sensorId\": \"%s\", \"time\": \"%s\" } \n",
                                 ((Sensor) obj.sensorDetails()).getID(),
                                 obj.currentTime()
-                        );
+                        ));
                     } else {
-                        jsonPayload = String.format(
-                                "{ \"name\": \"%s\", \"activated\": \"%s\", \"time\": \"%s\" }",
+                        jsonPayload.append(String.format(
+                                "{ \"name\": \"%s\", \"activated\": \"%s\", \"time\": \"%s\" } \n",
                                 ((AlarmSystem) obj.sensorDetails()).getClass().getSimpleName(),
                                 obj.activated(),
                                 obj.currentTime()
-                        );
+                        ));
                     }
-                    if (!jsonPayload.isEmpty()) {
-                        webSocketService.sendSimulationEvent(context.getSocketTopic(), jsonPayload);
-                    }
+                }
+                if (jsonPayload.length() > 0) {
+                    webSocketService.sendSimulationEvent(context.getSocketTopic(), jsonPayload.toString());
                 }
                 context.getEventLogger().clearObjectList();
 

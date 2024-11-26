@@ -72,10 +72,10 @@ public class LogService {
     }
 
     public void createLog(List<EventLogger.SensorLog> logsInfo, Long sessionId){
-        for(EventLogger.SensorLog log: logsInfo){
-            if(log.sensorDetails() instanceof Sensor){
+        for (EventLogger.SensorLog log: logsInfo){
+            if (log.sensorDetails() instanceof Sensor){
                 createEventLog(((Sensor) log.sensorDetails()).getID(), log.currentTime());
-            }else{
+            } else{
                 createAlarmLog(sessionId,log.sensorDetails().getClass().getSimpleName(),log.activated(),log.currentTime());
             }
         }
