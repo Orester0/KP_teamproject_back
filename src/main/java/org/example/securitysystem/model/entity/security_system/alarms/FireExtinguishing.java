@@ -13,4 +13,9 @@ public class FireExtinguishing extends AlarmSystem{
         isActive = false;
         securityEventManager.securityNotify("FireExtinguishingOFF", this);
     }
+
+    @Override
+    public Boolean isAlarmActive() throws Exception {
+        return isActive;
+    }
 }

@@ -1,36 +1,27 @@
 package org.example.securitysystem;
+import org.example.securitysystem.model.entity.security_system.alarms.AlarmSystem;
+import org.example.securitysystem.model.entity.security_system.sensors.MotionSensor;
+import org.example.securitysystem.service.domain_service.mediator.SecurityMediator;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class SecuritySystemApplicationTests {
 
-//    @Mock
-//    private AlarmSystem alarmSystem;
-//
-//    @InjectMocks
-//    private SecurityController securityController;
-//
-//    @BeforeEach
-//    void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//        securityController = new SecurityController();
-//    }
-//
-//    @Test
-//    void contextLoads() {
-//
-//    }
-//
-//    @Test
-//    void testMotionDetectionTriggersAlarm() throws Exception {
-//        MotionSensor motionSensor = new MotionSensor();
-//        motionSensor.setMediator(securityController);
-//
-//        securityController.register(motionSensor, "MotionSensor");
-//        securityController.register(alarmSystem, "AlarmSystem");
-//
-//        motionSensor.detect();
-//
-//        verify(alarmSystem, times(1)).activateAlarm();
-//    }
+    @Mock
+    private AlarmSystem alarmSystem;
+
+    @InjectMocks
+    private SecurityMediator securityController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 }
