@@ -13,4 +13,9 @@ public class SirenLight extends AlarmSystem{
         isActive = false;
         securityEventManager.securityNotify("SirenOFF", this);
     }
+
+    @Override
+    public Boolean isAlarmActive() throws Exception {
+        return isActive;
+    }
 }

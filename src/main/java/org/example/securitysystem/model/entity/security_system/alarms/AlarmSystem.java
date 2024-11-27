@@ -18,6 +18,7 @@ public abstract class AlarmSystem implements ISecurityColleague {
     public void setEventManager(SecurityEventManager eventManager) { securityEventManager = eventManager;}
     public abstract void activateAlarm() throws Exception;
     public abstract  void deactivateAlarm() throws  Exception;
+    public abstract Boolean isAlarmActive() throws  Exception;
 
 
 }

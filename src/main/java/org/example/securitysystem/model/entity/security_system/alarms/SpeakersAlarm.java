@@ -13,4 +13,9 @@ public class SpeakersAlarm extends AlarmSystem {
         isActive = false;
         securityEventManager.securityNotify("SpeakersOFF", this);
     }
+
+    @Override
+    public Boolean isAlarmActive() throws Exception {
+        return isActive;
+    }
 }
