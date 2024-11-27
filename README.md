@@ -13,16 +13,11 @@ The architecture uses the mediator and observer design patterns to efficiently m
 2. **Observer**: Listens to and reacts to security events.
 3. **Rooms & Sensors**: Defines different rooms equipped with sensors (motion, temperature, camera, and microphone).
 4. **Floor Builder**: Constructs rooms and organizes them into floors and buildings.
-5. **Controller**: Manages session interactions and requests for event handling.
+5. **Controllers**: Manages session interactions and requests for event handling.
 6. **Database**: Stores event logs and sensor statuses.
 
-### Diagram
-The architecture diagram (attached in this repository) provides a visual overview of the components and their relationships within the security simulation. The main modules are interconnected to handle real-time updates, sensor activations, and event notifications.
 
 ## Components
-
-### Exceptions
-- **Exceptions**: All the exceptions contained in object named 'zxc'.
 
 ### Mediator
 - **SecuritySystemMediator**: Central mediator that manages sensor activations and communication.
@@ -42,15 +37,16 @@ The architecture diagram (attached in this repository) provides a visual overvie
 - **FloorBuilder**: Constructs floors with specified rooms.
 - **Building**: Manages floors and keeps track of all rooms and sensors.
 
-### Controller
-- **Controller**: Manages simulation controls, such as activating sensors and triggering alarm events.
-
+### Controllers
+- **SessionController**: Manages session controls, such as register, login and getting logs from session.
+- **BuildingController**: Manages building controls, such as creating building, adding floors and starting different types of simulations.
+- 
 ## Setup
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/Orester0/security-system.git
-    cd security-system
+    git clone https://github.com/Orester0/KP_teamproject_back.git
+    KP_teamproject_back
     ```
 
 2. **Import the Project**:
@@ -67,7 +63,7 @@ The architecture diagram (attached in this repository) provides a visual overvie
 
 ## Usage
 
-- **Frontend**: The frontend interface connects with the `Controller` class to visualize sensor activations and floor layouts.
+- **Frontend**: The frontend interface connects with the `Controllers` classes to visualize sensor activations and floor layouts.
 - **Robber Simulation**: The `RobberSimulator` class randomly activates sensors to test the system's response.
 
 
