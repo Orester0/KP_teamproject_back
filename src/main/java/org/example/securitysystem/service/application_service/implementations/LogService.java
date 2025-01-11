@@ -24,13 +24,10 @@ public class LogService {
 
     @Autowired
     private ILogRepository logRepository;
-
     @Autowired
     private ISensorRepository sensorRepository;
-
     @Autowired
     private IAlarmRepository alarmRepository;
-
     @Autowired
     private ISessionRepository sessionRepository;
 
@@ -80,8 +77,6 @@ public class LogService {
             }
         }
     }
-
-
 
     public List<EventLog> getEventLogsBySensorId(long sensorId){
         return logRepository.findBySensor_SensorId(sensorId);

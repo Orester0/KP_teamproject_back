@@ -39,6 +39,7 @@ public class Building implements Serializable {
         IFloorBuilder = null;
     }
 
+    // install sensors inside rooms
     private void setSensors() throws BuildingException
     {
         validateNotFinalized();
