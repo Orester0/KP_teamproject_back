@@ -14,7 +14,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/session")
 public class SessionController {
-
     private final SessionService sessionService;
     private final LogService logService;
     private final Gson gson;

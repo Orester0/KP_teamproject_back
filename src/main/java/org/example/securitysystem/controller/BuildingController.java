@@ -19,13 +19,11 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/api/building")
 public class BuildingController {
-
     private final Gson gson;
     private final SessionService sessionService;
     private final WebSocketService webSocketService;
     private final SimulationService simulationService;
     private final ReplayService replayService;
-
 
     @Autowired
     public BuildingController(SessionService sessionService, WebSocketService webSocketService, SimulationService simulationService, ReplayService replayService) {

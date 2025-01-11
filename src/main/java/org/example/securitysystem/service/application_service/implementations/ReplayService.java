@@ -24,8 +24,10 @@ import java.util.stream.Collectors;
 public class ReplayService {
     private final WebSocketService webSocketService;
     private final LogService logService;
+
     private final Map<Long, ReplayContext> activeReplays = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+
     private static final DateTimeFormatter OUTPUT_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     public ReplayService(WebSocketService webSocketService, LogService logService) {
@@ -47,8 +49,6 @@ public class ReplayService {
 
             ReplayContext context = createReplayContext(building, socketTopic, filteredLogs);
             activeReplays.put(sessionId, context);
-
-
 
             scheduleReplayCycle(sessionId, context, 0);
             log.info("Replay started for session: {} from {} to {}",
